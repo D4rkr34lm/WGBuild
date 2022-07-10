@@ -4,3 +4,7 @@ main: com.d4rkr34lm.wgbuild.WGBuild
 api-version: 1.19
 authors: [ D4rkr34lm, PrinzAutistimus ]
 description: Tools for WarGear development
+
+commands:
+  trail:
+    description: This Command is used to enable the trail feature
