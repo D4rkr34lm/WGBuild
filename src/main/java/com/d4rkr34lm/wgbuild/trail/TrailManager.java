@@ -12,6 +12,11 @@ public class TrailManager {
     private static String bdTnt = "minecraft:tnt";
     private static String bdGlass = "minecraft:red_stained_glass";
 
+    private static final String MODE_NORMAL = "§aCurrent viewing mode: §6Normal";
+    private static final String MODE_EXPLOSION = "§aCurrent viewing mode: §6Explosion";
+    private static final String MODE_TRAVEL = "§aCurrent viewing mode: §6Travel";
+    private static final String MODE_HIDDEN = "§aCurrent viewing mode: §6Hidden";
+
     public TrailManager(){
 
     }
@@ -29,7 +34,9 @@ public class TrailManager {
             }
 
             setTrailBlock(t.getLocation(), t.getTickTime(), bd);
+
         }
+        Bukkit.broadcastMessage(MODE_NORMAL);
     }
 
     public static void showTrailExplosion(){
@@ -45,6 +52,7 @@ public class TrailManager {
             BlockData bd = Bukkit.createBlockData(bdGlass);
             setTrailBlock(t.getLocation(), t.getTickTime(), bd);
         }
+        Bukkit.broadcastMessage(MODE_EXPLOSION);
     }
 
     public static void showTrailTravel(){
@@ -60,6 +68,7 @@ public class TrailManager {
             BlockData bd = Bukkit.createBlockData(bdTnt);
             setTrailBlock(t.getLocation(), t.getTickTime(), bd);
         }
+        Bukkit.broadcastMessage(MODE_TRAVEL);
     }
 
 
@@ -67,6 +76,7 @@ public class TrailManager {
         for(FallingBlock b : Bukkit.getWorld("world").getEntitiesByClass(FallingBlock.class)){
             b.remove();
         }
+        Bukkit.broadcastMessage(MODE_HIDDEN);
     }
 
     private static void setTrailBlock(Location loc, int tickTime, BlockData bd){

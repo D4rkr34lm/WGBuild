@@ -15,13 +15,11 @@ public class TrailCommand implements CommandExecutor {
 
     private final String PLAYER_ONLY_USE = "§cThis command is only meant to be used by a Player";
     private final String COMMAND_USE = "§cPlease use §6/trial <new/hide/explosion/travel/normal>";
+    private final String NO_TRAIL = "§cThere is currently no trail saved. Generate a new one by using §6/trail new";
 
     private final String ALREADY_RECORDING = "§aThe recording has already started. U silly little bastard";
 
     private final String RECORDING_STARTED = "§aStarted recording. Waiting for TNT...";
-
-    public TrailCommand(){
-    }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
@@ -64,7 +62,7 @@ public class TrailCommand implements CommandExecutor {
     private void showNormalTrail() {
 
         if(isTrailEmpty()){
-            player.sendMessage("§cThere is currently no trail saved. Generate a new one by using §6/trail new");
+            player.sendMessage(NO_TRAIL);
             return;
         }
 
@@ -75,7 +73,7 @@ public class TrailCommand implements CommandExecutor {
     private void showTravelOnly() {
 
         if(isTrailEmpty()){
-            player.sendMessage("§cThere is currently no trail saved. Generate a new one by using §6/trail new");
+            player.sendMessage(NO_TRAIL);
             return;
         }
 
@@ -86,7 +84,7 @@ public class TrailCommand implements CommandExecutor {
     private void showExplosionOnly() {
 
         if(isTrailEmpty()){
-            player.sendMessage("§cThere is currently no trail saved. Generate a new one by using §6/trail new");
+            player.sendMessage(NO_TRAIL);
             return;
         }
 
@@ -97,7 +95,7 @@ public class TrailCommand implements CommandExecutor {
     private void hideTrail() {
 
         if(isTrailEmpty()){
-            player.sendMessage("§cThere is currently no trail saved. Generate a new one by using §6/trail new");
+            player.sendMessage(NO_TRAIL);
             return;
         }
 
