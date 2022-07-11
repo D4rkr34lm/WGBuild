@@ -26,6 +26,12 @@ public class TntPrimeListener implements Listener {
 
     private int schedulerID;
 
+    private final String WORLD_NAME = "world";
+
+    private final String TNT_FOUND = "§aA TNT has been primed! Recording positions and ticks...";
+    private final String RECORDING_STOPPED = "§aThe last TNT has exploded. The recording has been stopped";
+    private final String MODE_NORMAL = "§aCurrent viewing mode: §6Normal";
+
     public TntPrimeListener(JavaPlugin parent){
         this.parent = parent;
         this.logger = parent.getLogger();
@@ -34,8 +40,6 @@ public class TntPrimeListener implements Listener {
     @EventHandler
     public void onTntPrime(TNTPrimeEvent e){
 
-        logger.log(Level.INFO,"A tnt has been primed");
-
         if(!WGBuild.isWaitingToStartRecording() || WGBuild.isRecordingTrail()){
             return;
         }
@@ -43,8 +47,8 @@ public class TntPrimeListener implements Listener {
 
         WGBuild.setRecordingTrail(true);
         WGBuild.setWaitingToStartRecording(false);
-        logger.log(Level.INFO, "The recording has started");
-        Bukkit.broadcastMessage("§aTNT found! Recording position and ticks");
+        Bukkit.broadcastMessage("");
+        Bukkit.broadcastMessage(TNT_FOUND);
 
         WGBuild.clearTrail();
 
@@ -54,7 +58,7 @@ public class TntPrimeListener implements Listener {
             @Override
             public void run() {
 
-                for(Entity entity : parent.getServer().getWorld("world").getEntitiesByClass(TNTPrimed.class)){
+                for(Entity entity : parent.getServer().getWorld(WORLD_NAME).getEntitiesByClass(TNTPrimed.class)){
 
                     WGBuild.addTrail(new TrailObject(entity.getLocation(), WGBuild.getTickTime(), false));
 
@@ -62,11 +66,12 @@ public class TntPrimeListener implements Listener {
 
                 WGBuild.addTickTime();
 
-                if(parent.getServer().getWorld("world").getEntitiesByClass(TNTPrimed.class).size() == 0){
+                if(parent.getServer().getWorld(WORLD_NAME).getEntitiesByClass(TNTPrimed.class).size() == 0){
                     Bukkit.getScheduler().cancelTask(schedulerID);
-                    logger.log(Level.INFO, "Scheduler has been stopped, No primed TNT was found. TickTime: " + WGBuild.getTickTime());
                     WGBuild.setRecordingTrail(false);
-                    logger.log(Level.INFO, "The Recording has stopped");
+                    Bukkit.broadcastMessage(RECORDING_STOPPED);
+                    Bukkit.broadcastMessage("");
+                    Bukkit.broadcastMessage(MODE_NORMAL);
                     TrailManager.showTrailNormal();
                 }
 
