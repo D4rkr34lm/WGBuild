@@ -24,6 +24,7 @@ public class TrailClickListener implements Listener {
         Entity clicked = e.getRightClicked();
         TrailObject information = WGBuild.getLookupTable().get(clicked);
         Vector velocity = information.getVelocity();
+
         Location location = information.getLocation();
 
         double velX = velocity.getX();
@@ -45,6 +46,7 @@ public class TrailClickListener implements Listener {
                         + "     §6X: " + posX + "\n"
                         + "     §6Z: " + posZ + "\n"
                         + "     §6Y: " + posY + "\n"
+
                         + "§aExploded: §6" + information.getExplosion());
 
 
