@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.d4rkr34lm.wgbuild.trail.TntExplosionListener;
 import com.d4rkr34lm.wgbuild.trail.TntPrimeListener;
 import com.d4rkr34lm.wgbuild.trail.TrailCommand;
+import com.d4rkr34lm.wgbuild.trail.TrailObject;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.d4rkr34lm.wgbuild.plotSystem.Plot;
@@ -16,6 +17,9 @@ public class WGBuild extends JavaPlugin {
 
 	private static boolean recordingTrail = false;
 	private static boolean waitingToStartRecording = false;
+	private static ArrayList<TrailObject> trail = new ArrayList<TrailObject>();
+	private static int tickTime;
+	private static int tickStart = 80;
 
 	
 	@Override
@@ -52,5 +56,32 @@ public class WGBuild extends JavaPlugin {
 	public static boolean isWaitingToStartRecording(){
 		return waitingToStartRecording;
 	}
-	
+
+	public static ArrayList<TrailObject> getTrail(){
+		return trail;
+	}
+
+	public static void addTrail(TrailObject to){
+		trail.add(to);
+	}
+
+	public static void clearTrail(){
+		trail.clear();
+	}
+
+	public static void resetTickTime(){
+		tickTime = tickStart;
+	}
+
+	public static void addTickTime(){
+		tickTime++;
+	}
+
+	public static int getTickTime(){
+		return tickTime;
+	}
+
+	public static int getTickStart(){
+		return tickStart;
+	}
 }

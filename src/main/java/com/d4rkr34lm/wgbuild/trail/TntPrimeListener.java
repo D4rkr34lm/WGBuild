@@ -25,9 +25,6 @@ public class TntPrimeListener implements Listener {
     private Logger logger;
 
     private int schedulerID;
-    private int tickTime;
-
-    ArrayList<TrailObject> trail = new ArrayList<TrailObject>();
 
     public TntPrimeListener(JavaPlugin parent){
         this.parent = parent;
@@ -49,9 +46,9 @@ public class TntPrimeListener implements Listener {
         logger.log(Level.INFO, "The recording has started");
         Bukkit.broadcastMessage("§aTNT found! Recording position and ticks");
 
-        trail.clear();
+        WGBuild.clearTrail();
 
-        tickTime = 1;
+        WGBuild.resetTickTime();
 
         schedulerID = Bukkit.getScheduler().scheduleSyncRepeatingTask(parent, new Runnable() {
             @Override
@@ -59,39 +56,23 @@ public class TntPrimeListener implements Listener {
 
                 for(Entity entity : parent.getServer().getWorld("world").getEntitiesByClass(TNTPrimed.class)){
 
-                    trail.add(new TrailObject(entity.getLocation(), tickTime, false));
+                    WGBuild.addTrail(new TrailObject(entity.getLocation(), WGBuild.getTickTime(), false));
 
                 }
 
-                tickTime++;
+                WGBuild.addTickTime();
 
                 if(parent.getServer().getWorld("world").getEntitiesByClass(TNTPrimed.class).size() == 0){
                     Bukkit.getScheduler().cancelTask(schedulerID);
-                    logger.log(Level.INFO, "Scheduler has been stopped, No primed TNT was found. TickTime: " + tickTime);
-                    showTrail();
+                    logger.log(Level.INFO, "Scheduler has been stopped, No primed TNT was found. TickTime: " + WGBuild.getTickTime());
+                    WGBuild.setRecordingTrail(false);
+                    logger.log(Level.INFO, "The Recording has stopped");
+                    TrailManager.showTrailNormal();
                 }
 
             }
-        }, 0, 1);
+        }, WGBuild.getTickStart(), 1);
 
-    }
-
-    public void showTrail(){
-        WGBuild.setRecordingTrail(false);
-        logger.log(Level.INFO, "The Recording has stopped");
-
-        ItemStack tnt = new ItemStack(Material.TNT);
-
-        for(TrailObject t : trail){
-            String bdString = "minecraft:tnt";
-            BlockData bd = Bukkit.createBlockData(bdString);
-            FallingBlock fb = Bukkit.getWorld("world").spawnFallingBlock(t.getLocation(), bd);
-
-            fb.setGravity(false);
-            fb.setCustomName(Integer.toString(t.getTickTime()));
-            fb.setCustomNameVisible(true);
-
-        }
     }
 
 }
