@@ -22,8 +22,7 @@ public class TrailManager {
     }
 
     public static void showTrailNormal(){
-
-        removeTrail();
+        removeTrail(false);
 
         for(TrailObject t : WGBuild.getTrail()){
 
@@ -33,15 +32,14 @@ public class TrailManager {
                 bd = Bukkit.createBlockData(bdGlass);
             }
 
-            setTrailBlock(t.getLocation(), t.getTickTime(), bd);
+            setTrailBlock(t.getLocation(), t.getTickTime(), bd, t);
 
         }
         Bukkit.broadcastMessage(MODE_NORMAL);
     }
 
     public static void showTrailExplosion(){
-
-        removeTrail();
+        removeTrail(false);
 
         for(TrailObject t : WGBuild.getTrail()){
 
@@ -50,14 +48,13 @@ public class TrailManager {
             }
 
             BlockData bd = Bukkit.createBlockData(bdGlass);
-            setTrailBlock(t.getLocation(), t.getTickTime(), bd);
+            setTrailBlock(t.getLocation(), t.getTickTime(), bd, t);
         }
         Bukkit.broadcastMessage(MODE_EXPLOSION);
     }
 
     public static void showTrailTravel(){
-
-        removeTrail();
+        removeTrail(false);
 
         for(TrailObject t : WGBuild.getTrail()) {
 
@@ -66,22 +63,26 @@ public class TrailManager {
             }
 
             BlockData bd = Bukkit.createBlockData(bdTnt);
-            setTrailBlock(t.getLocation(), t.getTickTime(), bd);
+            setTrailBlock(t.getLocation(), t.getTickTime(), bd, t);
         }
         Bukkit.broadcastMessage(MODE_TRAVEL);
     }
 
-
-    public static void removeTrail(){
+    public static void removeTrail(boolean chatOutput){
         for(FallingBlock b : Bukkit.getWorld("world").getEntitiesByClass(FallingBlock.class)){
             b.remove();
         }
-        Bukkit.broadcastMessage(MODE_HIDDEN);
+        WGBuild.clearLookupTable();
+        if(chatOutput){
+            Bukkit.broadcastMessage(MODE_HIDDEN);
+        }
     }
 
-    private static void setTrailBlock(Location loc, int tickTime, BlockData bd){
+    private static void setTrailBlock(Location loc, int tickTime, BlockData bd, TrailObject t){
 
         FallingBlock fb = Bukkit.getWorld("world").spawnFallingBlock(loc, bd);
+
+        WGBuild.putEntry(fb, t);
 
         fb.setGravity(false);
         fb.setCustomName(Integer.toString(tickTime));

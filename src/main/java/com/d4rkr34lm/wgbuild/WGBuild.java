@@ -1,11 +1,13 @@
 package com.d4rkr34lm.wgbuild;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
-import com.d4rkr34lm.wgbuild.trail.TntExplosionListener;
-import com.d4rkr34lm.wgbuild.trail.TntPrimeListener;
-import com.d4rkr34lm.wgbuild.trail.TrailCommand;
-import com.d4rkr34lm.wgbuild.trail.TrailObject;
+import com.d4rkr34lm.wgbuild.trail.*;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.d4rkr34lm.wgbuild.plotSystem.Plot;
@@ -18,10 +20,11 @@ public class WGBuild extends JavaPlugin {
 	private static boolean recordingTrail = false;
 	private static boolean waitingToStartRecording = false;
 	private static ArrayList<TrailObject> trail = new ArrayList<TrailObject>();
+	private static HashMap<FallingBlock, TrailObject> lookupTable = new HashMap<FallingBlock, TrailObject>();
 	private static int tickTime;
 	private static int tickStart = 80;
 
-	
+
 	@Override
 	public void onEnable() {
 
@@ -30,11 +33,20 @@ public class WGBuild extends JavaPlugin {
 
 	}
 
-	public void registerPlugins(){
-		this.getServer().getPluginManager().registerEvents(new PlotConstructor(this), this);
+	@Override
+	public void onDisable(){
+		TrailManager.removeTrail(false);
+	}
 
-		this.getServer().getPluginManager().registerEvents(new TntPrimeListener(this), this);
-		this.getServer().getPluginManager().registerEvents(new TntExplosionListener(), this);
+	public void registerPlugins(){
+
+		PluginManager pm = Bukkit.getPluginManager();
+
+		pm.registerEvents(new PlotConstructor(this), this);
+
+		pm.registerEvents(new TntPrimeListener(this), this);
+		pm.registerEvents(new TntExplosionListener(), this);
+		pm.registerEvents(new TrailClickListener(), this);
 	}
 
 	public void registerCommands(){
@@ -83,5 +95,17 @@ public class WGBuild extends JavaPlugin {
 
 	public static int getTickStart(){
 		return tickStart;
+	}
+
+	public static void putEntry(FallingBlock fb, TrailObject t){
+		lookupTable.put(fb, t);
+	}
+
+	public static HashMap<FallingBlock, TrailObject> getLookupTable(){
+		return lookupTable;
+	}
+
+	public static void clearLookupTable() {
+		lookupTable.clear();
 	}
 }

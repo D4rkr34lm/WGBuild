@@ -54,53 +54,38 @@ public class TrailCommand implements CommandExecutor {
             case "normal":
                 showNormalTrail();
         }
-
         return false;
-
     }
 
     private void showNormalTrail() {
-
         if(isTrailEmpty()){
             player.sendMessage(NO_TRAIL);
             return;
         }
 
         TrailManager.showTrailNormal();
-
     }
 
     private void showTravelOnly() {
-
         if(isTrailEmpty()){
             player.sendMessage(NO_TRAIL);
             return;
         }
 
         TrailManager.showTrailTravel();
-
     }
 
     private void showExplosionOnly() {
-
         if(isTrailEmpty()){
             player.sendMessage(NO_TRAIL);
             return;
         }
 
         TrailManager.showTrailExplosion();
-
     }
 
     private void hideTrail() {
-
-        if(isTrailEmpty()){
-            player.sendMessage(NO_TRAIL);
-            return;
-        }
-
-        TrailManager.removeTrail();
-
+        TrailManager.removeTrail(true);
     }
 
     private void newTrail() {
@@ -110,19 +95,15 @@ public class TrailCommand implements CommandExecutor {
             return;
         }
 
-        TrailManager.removeTrail();
+        TrailManager.removeTrail(false);
         WGBuild.clearTrail();
 
         player.sendMessage(RECORDING_STARTED);
         WGBuild.setWaitingToStartRecording(true);
-
     }
 
     private boolean isTrailEmpty(){
-        if(WGBuild.getTrail().size() > 0){
-            return false;
-        }
-        return true;
+        return WGBuild.getTrail().size() <= 0;
     }
 
 }

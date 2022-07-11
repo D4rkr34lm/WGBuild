@@ -22,7 +22,6 @@ import java.util.logging.Logger;
 public class TntPrimeListener implements Listener {
 
     private JavaPlugin parent;
-    private Logger logger;
 
     private int schedulerID;
 
@@ -34,7 +33,6 @@ public class TntPrimeListener implements Listener {
 
     public TntPrimeListener(JavaPlugin parent){
         this.parent = parent;
-        this.logger = parent.getLogger();
     }
 
     @EventHandler
@@ -44,14 +42,12 @@ public class TntPrimeListener implements Listener {
             return;
         }
 
-
         WGBuild.setRecordingTrail(true);
         WGBuild.setWaitingToStartRecording(false);
-        Bukkit.broadcastMessage("");
-        Bukkit.broadcastMessage(TNT_FOUND);
+        Bukkit.broadcastMessage("\n"
+                    + TNT_FOUND);
 
         WGBuild.clearTrail();
-
         WGBuild.resetTickTime();
 
         schedulerID = Bukkit.getScheduler().scheduleSyncRepeatingTask(parent, new Runnable() {
@@ -59,19 +55,16 @@ public class TntPrimeListener implements Listener {
             public void run() {
 
                 for(Entity entity : parent.getServer().getWorld(WORLD_NAME).getEntitiesByClass(TNTPrimed.class)){
-
-                    WGBuild.addTrail(new TrailObject(entity.getLocation(), WGBuild.getTickTime(), false));
-
+                    TrailObject trailObject = new TrailObject(entity, WGBuild.getTickTime(), false);
+                    WGBuild.addTrail(trailObject);
                 }
 
                 WGBuild.addTickTime();
 
-                if(parent.getServer().getWorld(WORLD_NAME).getEntitiesByClass(TNTPrimed.class).size() == 0){
+                if(Bukkit.getWorld(WORLD_NAME).getEntitiesByClass(TNTPrimed.class).size() == 0){
                     Bukkit.getScheduler().cancelTask(schedulerID);
                     WGBuild.setRecordingTrail(false);
-                    Bukkit.broadcastMessage(RECORDING_STOPPED);
-                    Bukkit.broadcastMessage("");
-                    Bukkit.broadcastMessage(MODE_NORMAL);
+                    Bukkit.broadcastMessage(RECORDING_STOPPED + "\n" + "");
                     TrailManager.showTrailNormal();
                 }
 
