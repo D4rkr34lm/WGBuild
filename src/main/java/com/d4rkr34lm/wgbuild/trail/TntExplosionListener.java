@@ -19,8 +19,7 @@ public class TntExplosionListener implements Listener {
             return;
         }
 
-        WGBuild.addTrail(new TrailObject(e.getLocation(), WGBuild.getTickTime(), true));
+        WGBuild.addTrail(new TrailObject(e.getEntity(), WGBuild.getTickTime(), true));
 
     }
-
 }
