@@ -5,9 +5,11 @@ import java.util.HashMap;
 
 import com.d4rkr34lm.wgbuild.trail.*;
 import org.bukkit.Bukkit;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.plugin.PluginManager;
+import com.d4rkr34lm.wgbuild.trail.TntExplosionListener;
+import com.d4rkr34lm.wgbuild.trail.TntPrimeListener;
+import com.d4rkr34lm.wgbuild.trail.TrailCommand;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.d4rkr34lm.wgbuild.plotSystem.Plot;
@@ -47,6 +49,9 @@ public class WGBuild extends JavaPlugin {
 		pm.registerEvents(new TntPrimeListener(this), this);
 		pm.registerEvents(new TntExplosionListener(), this);
 		pm.registerEvents(new TrailClickListener(), this);
+
+		this.getServer().getPluginManager().registerEvents(new TntPrimeListener(this), this);
+		this.getServer().getPluginManager().registerEvents(new TntExplosionListener(), this);
 	}
 
 	public void registerCommands(){
