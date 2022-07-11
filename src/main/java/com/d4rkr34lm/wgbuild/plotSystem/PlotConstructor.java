@@ -3,14 +3,14 @@ package com.d4rkr34lm.wgbuild.plotSystem;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.d4rkr34lm.wgbuild.WGBuild;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
@@ -27,9 +27,9 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 
 public class PlotConstructor implements Listener{
 	
-	private JavaPlugin parent;
+	private WGBuild parent;
 	
-	public PlotConstructor(JavaPlugin parent) {
+	public PlotConstructor(WGBuild parent) {
 		this.parent = parent;
 	}
 	
@@ -41,34 +41,42 @@ public class PlotConstructor implements Listener{
 			int x = e.getBlock().getLocation().getBlockX();
 			int y = e.getBlock().getLocation().getBlockY();
 			int z = e.getBlock().getLocation().getBlockZ();
-			
-			logger.log(Level.INFO, "Plot construction started at " + x + " " + y + " " + z);
-			
-			File file = new File("./plugins/WGBuild/baseplate.schem");
-			Clipboard baseplate = null;
 
-			ClipboardFormat format = ClipboardFormats.findByFile(file);
-			ClipboardReader reader;
-			try {
-				reader = format.getReader(new FileInputStream(file));
-				baseplate = reader.read();
-			} 
-			catch (IOException err) {
-				err.printStackTrace();
+			parent.getServer().broadcastMessage("Plot construction started at " + x + " " + y + " " + z);
+
+			Plot plot = new Plot(new Location(e.getBlock().getWorld(), x, y, z));
+
+			if(parent.addPlot(plot)){
+				File file = new File("./plugins/WGBuild/baseplate.schem");
+				Clipboard baseplate = null;
+
+				ClipboardFormat format = ClipboardFormats.findByFile(file);
+				ClipboardReader reader;
+				try {
+					reader = format.getReader(new FileInputStream(file));
+					baseplate = reader.read();
+				}
+				catch (IOException err) {
+					err.printStackTrace();
+				}
+
+				try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(e.getBlock().getWorld()))) {
+					Operation operation = new ClipboardHolder(baseplate)
+							.createPaste(editSession)
+							.to(BlockVector3.at(x, y, z))
+							.build();
+					Operations.complete(operation);
+				} catch (WorldEditException err) {
+					err.printStackTrace();
+				}
+
+				parent.getServer().broadcastMessage("Plot construction finished");
+			}
+			else{
+				parent.getServer().broadcastMessage("Plot can not be constructed here!");
 			}
 
-			try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(e.getBlock().getWorld()))) {
-			    Operation operation = new ClipboardHolder(baseplate)
-			            .createPaste(editSession)
-			            .to(BlockVector3.at(x, y, z))
-			            .build();
-			    Operations.complete(operation);
-			} catch (WorldEditException err) {
-				err.printStackTrace();
-			}
-			
-			logger.log(Level.INFO, "Plot construction finished");
-			
+			e.setCancelled(true);
 		}
 	}
 }
