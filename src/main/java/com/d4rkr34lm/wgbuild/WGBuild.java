@@ -21,7 +21,10 @@ public class WGBuild extends JavaPlugin {
 	
 	@Override
 	public void onEnable() {
-		this.getServer().getPluginManager().registerEvents(new PlotConstructor(this), this);
+		PlotConstructor plotConstructor = new PlotConstructor(this);
+
+		this.getServer().getPluginManager().registerEvents(plotConstructor, this);
+		this.getCommand("plot").setExecutor(plotConstructor);
 		loadPlotData();
 	}
 
@@ -31,6 +34,18 @@ public class WGBuild extends JavaPlugin {
 	}
 
 	public void loadPlotData(){
+		Clipboard plotSchem = null;
+		File schemFile = new File("./plugins/WGBuild/plot.schem");
+		ClipboardFormat format = ClipboardFormats.findByFile(schemFile);
+		ClipboardReader reader;
+		try {
+			reader = format.getReader(new FileInputStream(schemFile));
+			plotSchem = reader.read();
+		}
+		catch (IOException err) {
+			err.printStackTrace();
+		}
+
 		File plotsFile = new File("./plugins/WGBuild/plots.dat");
 
 		try{
@@ -40,18 +55,6 @@ public class WGBuild extends JavaPlugin {
 			String line = bufferedReader.readLine();
 			while (line != null && !line.equals("")){
 				String[] lineParts = line.split(",");
-
-				Clipboard plotSchem = null;
-				File schemFile = new File("./plugins/WGBuild/baseplate.schem");
-				ClipboardFormat format = ClipboardFormats.findByFile(schemFile);
-				ClipboardReader reader;
-				try {
-					reader = format.getReader(new FileInputStream(schemFile));
-					plotSchem = reader.read();
-				}
-				catch (IOException err) {
-					err.printStackTrace();
-				}
 
 				Location placementLocation = new Location(Bukkit.getWorld("world"), Integer.parseInt(lineParts[0]), Integer.parseInt(lineParts[1]), Integer.parseInt(lineParts[2]));
 				Plot plot = new Plot(placementLocation, plotSchem);
