@@ -2,11 +2,9 @@ package com.d4rkr34lm.wgbuild;
 
 import java.util.ArrayList;
 
-import com.d4rkr34lm.wgbuild.trail.EntityMoveListener;
 import com.d4rkr34lm.wgbuild.trail.TntExplosionListener;
 import com.d4rkr34lm.wgbuild.trail.TntPrimeListener;
 import com.d4rkr34lm.wgbuild.trail.TrailCommand;
-import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.d4rkr34lm.wgbuild.plotSystem.Plot;
@@ -33,7 +31,6 @@ public class WGBuild extends JavaPlugin {
 
 		this.getServer().getPluginManager().registerEvents(new TntPrimeListener(this), this);
 		this.getServer().getPluginManager().registerEvents(new TntExplosionListener(), this);
-		this.getServer().getPluginManager().registerEvents(new EntityMoveListener(this), this);
 	}
 
 	public void registerCommands(){

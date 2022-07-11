@@ -4,13 +4,14 @@ import com.d4rkr34lm.wgbuild.WGBuild;
 import com.destroystokyo.paper.event.block.TNTPrimeEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.units.qual.A;
 
@@ -46,6 +47,7 @@ public class TntPrimeListener implements Listener {
         WGBuild.setRecordingTrail(true);
         WGBuild.setWaitingToStartRecording(false);
         logger.log(Level.INFO, "The recording has started");
+        Bukkit.broadcastMessage("§aTNT found! Recording position and ticks");
 
         trail.clear();
 
@@ -78,10 +80,17 @@ public class TntPrimeListener implements Listener {
         WGBuild.setRecordingTrail(false);
         logger.log(Level.INFO, "The Recording has stopped");
 
+        ItemStack tnt = new ItemStack(Material.TNT);
+
         for(TrailObject t : trail){
             String bdString = "minecraft:tnt";
             BlockData bd = Bukkit.createBlockData(bdString);
-            Bukkit.getWorld("world").spawnFallingBlock(t.getLocation(), bd);
+            FallingBlock fb = Bukkit.getWorld("world").spawnFallingBlock(t.getLocation(), bd);
+
+            fb.setGravity(false);
+            fb.setCustomName(Integer.toString(t.getTickTime()));
+            fb.setCustomNameVisible(true);
+
         }
     }
 
