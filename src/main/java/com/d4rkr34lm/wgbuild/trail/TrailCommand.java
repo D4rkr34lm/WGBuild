@@ -12,9 +12,9 @@ public class TrailCommand implements CommandExecutor {
     private boolean trailShown = false;
 
     private Player player;
+    private TrailGui gui = new TrailGui();
 
     private final String PLAYER_ONLY_USE = "§cThis command is only meant to be used by a Player";
-    private final String COMMAND_USE = "§cPlease use §6/trial <new/hide/explosion/travel/normal>";
     private final String NO_TRAIL = "§cThere is currently no trail saved. Generate a new one by using §6/trail new";
 
     private final String ALREADY_RECORDING = "§aThe recording has already started. U silly little bastard";
@@ -31,8 +31,8 @@ public class TrailCommand implements CommandExecutor {
 
         player = (Player) sender;
 
-        if(args.length != 1){
-            player.sendMessage(COMMAND_USE);
+        if(args.length < 1){
+            player.openInventory(gui.getGui());
             return false;
         }
 

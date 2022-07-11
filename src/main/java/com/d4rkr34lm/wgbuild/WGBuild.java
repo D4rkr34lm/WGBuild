@@ -49,9 +49,7 @@ public class WGBuild extends JavaPlugin {
 		pm.registerEvents(new TntPrimeListener(this), this);
 		pm.registerEvents(new TntExplosionListener(), this);
 		pm.registerEvents(new TrailClickListener(), this);
-
-		this.getServer().getPluginManager().registerEvents(new TntPrimeListener(this), this);
-		this.getServer().getPluginManager().registerEvents(new TntExplosionListener(), this);
+		pm.registerEvents(new GuiClickListener(this), this);
 	}
 
 	public void registerCommands(){

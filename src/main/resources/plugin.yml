@@ -7,4 +7,4 @@ description: Tools for WarGear development
 
 commands:
   trail:
-    description: This Command is used to enable the trail feature
+    description: This Command is used to use the trail feature
