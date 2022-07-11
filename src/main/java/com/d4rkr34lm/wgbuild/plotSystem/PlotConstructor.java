@@ -28,9 +28,21 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 public class PlotConstructor implements Listener{
 	
 	private WGBuild parent;
+	Clipboard plotSchem = null;
 	
 	public PlotConstructor(WGBuild parent) {
 		this.parent = parent;
+
+		File file = new File("./plugins/WGBuild/baseplate.schem");
+		ClipboardFormat format = ClipboardFormats.findByFile(file);
+		ClipboardReader reader;
+		try {
+			reader = format.getReader(new FileInputStream(file));
+			plotSchem = reader.read();
+		}
+		catch (IOException err) {
+			err.printStackTrace();
+		}
 	}
 	
 	@EventHandler
@@ -44,24 +56,13 @@ public class PlotConstructor implements Listener{
 
 			parent.getServer().broadcastMessage("Plot construction started at " + x + " " + y + " " + z);
 
-			Plot plot = new Plot(new Location(e.getBlock().getWorld(), x, y, z));
+			Plot plot = new Plot(new Location(e.getBlock().getWorld(), x, y, z), plotSchem);
 
 			if(parent.addPlot(plot)){
-				File file = new File("./plugins/WGBuild/baseplate.schem");
-				Clipboard baseplate = null;
 
-				ClipboardFormat format = ClipboardFormats.findByFile(file);
-				ClipboardReader reader;
-				try {
-					reader = format.getReader(new FileInputStream(file));
-					baseplate = reader.read();
-				}
-				catch (IOException err) {
-					err.printStackTrace();
-				}
 
 				try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(e.getBlock().getWorld()))) {
-					Operation operation = new ClipboardHolder(baseplate)
+					Operation operation = new ClipboardHolder(plotSchem)
 							.createPaste(editSession)
 							.to(BlockVector3.at(x, y, z))
 							.build();

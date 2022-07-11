@@ -3,6 +3,10 @@ package com.d4rkr34lm.wgbuild;
 import java.io.*;
 import java.util.ArrayList;
 
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
+import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,18 +31,30 @@ public class WGBuild extends JavaPlugin {
 	}
 
 	public void loadPlotData(){
-		File file = new File("./plugins/WGBuild/plots.dat");
+		File plotsFile = new File("./plugins/WGBuild/plots.dat");
 
 		try{
-			FileReader fileReader = new FileReader(file);
+			FileReader fileReader = new FileReader(plotsFile);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
 
 			String line = bufferedReader.readLine();
-			while (line != null){
+			while (line != null && !line.equals("")){
 				String[] lineParts = line.split(",");
 
+				Clipboard plotSchem = null;
+				File schemFile = new File("./plugins/WGBuild/baseplate.schem");
+				ClipboardFormat format = ClipboardFormats.findByFile(schemFile);
+				ClipboardReader reader;
+				try {
+					reader = format.getReader(new FileInputStream(schemFile));
+					plotSchem = reader.read();
+				}
+				catch (IOException err) {
+					err.printStackTrace();
+				}
+
 				Location placementLocation = new Location(Bukkit.getWorld("world"), Integer.parseInt(lineParts[0]), Integer.parseInt(lineParts[1]), Integer.parseInt(lineParts[2]));
-				Plot plot = new Plot(placementLocation);
+				Plot plot = new Plot(placementLocation, plotSchem);
 				addPlot(plot);
 
 				line = bufferedReader.readLine();

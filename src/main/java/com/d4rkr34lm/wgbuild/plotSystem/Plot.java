@@ -1,35 +1,36 @@
 package com.d4rkr34lm.wgbuild.plotSystem;
 
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.math.BlockVector3;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 
 public class Plot {
+
+	private Clipboard plotSchem;
 	private Location placementLocation;
 	private Location corner;
-	private Vector size;
+	private BlockVector3 size;
 	private int id;
 	
-	public Plot(Location placementLocation) {
+	public Plot(Location placementLocation, Clipboard plotSchem) {
 		this.placementLocation = placementLocation;
-		corner = new Location(placementLocation.getWorld(), placementLocation.getBlockX() - 33, placementLocation.getBlockY(), placementLocation.getBlockZ() - 47);
-		size = new Vector(67.0, 1.0, 144.0);
+		size = plotSchem.getDimensions();
+
+		int xOffset = Math.abs(plotSchem.getOrigin().getBlockX() - plotSchem.getMinimumPoint().getBlockX());
+		int zOffset = Math.abs(plotSchem.getOrigin().getBlockZ() - plotSchem.getMinimumPoint().getBlockZ());
+		corner = new Location(placementLocation.getWorld(), placementLocation.getBlockX() - xOffset, placementLocation.getBlockY(), placementLocation.getBlockZ() - zOffset);
 	}
 
 	public  boolean isColliding(Plot plot){
-		if(plot.getCorner().getWorld() == corner.getWorld()){
-			return  plot.getCorner().getBlockX() + plot.getSize().getBlockX() > corner.getBlockX() &&
-					plot.getCorner().getBlockZ() + plot.getSize().getBlockZ() > corner.getBlockZ() &&
-					corner.getBlockX() + size.getBlockX() > plot.getCorner().getBlockX() &&
-					corner.getBlockZ() + size.getBlockZ() > plot.getCorner().getBlockZ();
-		}
-		else {
-			return false;
-		}
+		return  plot.getCorner().getBlockX() + plot.getSize().getBlockX() > corner.getBlockX() &&
+				plot.getCorner().getBlockZ() + plot.getSize().getBlockZ() > corner.getBlockZ() &&
+				corner.getBlockX() + size.getBlockX() > plot.getCorner().getBlockX() &&
+				corner.getBlockZ() + size.getBlockZ() > plot.getCorner().getBlockZ();
 	}
 
 	public boolean isInside(Location location) {
-		return location.getWorld() == this.corner.getWorld()
-				&& location.getBlockX() >= corner.getBlockX() && location.getBlockX() <= corner.getBlockX() + size.getBlockX()
+		return location.getBlockX() >= corner.getBlockX() && location.getBlockX() <= corner.getBlockX() + size.getBlockX()
 				&& location.getBlockZ() >= corner.getBlockZ() && location.getBlockZ() <= corner.getBlockZ() + size.getBlockZ();
 	}
 
@@ -49,7 +50,7 @@ public class Plot {
 		return  corner;
 	}
 
-	public Vector getSize(){
+	public BlockVector3 getSize(){
 		return  size;
 	}
 }
