@@ -1,5 +1,6 @@
 package com.d4rkr34lm.wgbuild.trail;
 
+import com.d4rkr34lm.wgbuild.WGBuild;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -14,7 +15,11 @@ public class TntExplosionListener implements Listener {
             return;
         }
 
+        if(!WGBuild.isRecordingTrail()){
+            return;
+        }
 
+        WGBuild.addTrail(new TrailObject(e.getLocation(), WGBuild.getTickTime(), true));
 
     }
 

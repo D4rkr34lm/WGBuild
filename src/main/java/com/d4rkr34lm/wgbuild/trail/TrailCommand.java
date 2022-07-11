@@ -62,15 +62,47 @@ public class TrailCommand implements CommandExecutor {
     }
 
     private void showNormalTrail() {
+
+        if(isTrailEmpty()){
+            player.sendMessage("§cThere is currently no trail saved. Generate a new one by using §6/trail new");
+            return;
+        }
+
+        TrailManager.showTrailNormal();
+
     }
 
     private void showTravelOnly() {
+
+        if(isTrailEmpty()){
+            player.sendMessage("§cThere is currently no trail saved. Generate a new one by using §6/trail new");
+            return;
+        }
+
+        TrailManager.showTrailTravel();
+
     }
 
     private void showExplosionOnly() {
+
+        if(isTrailEmpty()){
+            player.sendMessage("§cThere is currently no trail saved. Generate a new one by using §6/trail new");
+            return;
+        }
+
+        TrailManager.showTrailExplosion();
+
     }
 
     private void hideTrail() {
+
+        if(isTrailEmpty()){
+            player.sendMessage("§cThere is currently no trail saved. Generate a new one by using §6/trail new");
+            return;
+        }
+
+        TrailManager.removeTrail();
+
     }
 
     private void newTrail() {
@@ -80,9 +112,19 @@ public class TrailCommand implements CommandExecutor {
             return;
         }
 
+        TrailManager.removeTrail();
+        WGBuild.clearTrail();
+
         player.sendMessage(RECORDING_STARTED);
         WGBuild.setWaitingToStartRecording(true);
 
+    }
+
+    private boolean isTrailEmpty(){
+        if(WGBuild.getTrail().size() > 0){
+            return false;
+        }
+        return true;
     }
 
 }
