@@ -34,20 +34,16 @@ public class GuiClickListener implements Listener {
     @EventHandler
     public void onGuiClick(InventoryClickEvent e){
 
-        logger.log(Level.INFO, "Inv Click Event");
-
         player = (Player) e.getWhoClicked();
 
         String invName = e.getView().getTitle();
         ItemStack clickedItem = e.getCurrentItem();
 
-        if (clickedItem == null){
+        if(!invName.equals(TrailGui.getInventoryName())){
             return;
         }
 
-        logger.log(Level.INFO, "item: " + clickedItem.getType() + ", " + clickedItem.getItemMeta().getDisplayName());
-
-        if(!invName.equals(TrailGui.getInventoryName())){
+        if (clickedItem == null){
             return;
         }
 
@@ -71,6 +67,8 @@ public class GuiClickListener implements Listener {
         }else if (itemType.equals(Material.SPONGE) && itemMeta.getDisplayName().equals("§eNormal Mode")){
             showNormalTrail();
             e.setCancelled(true);
+        }else{
+            return;
         }
 
         player.closeInventory();
