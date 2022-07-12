@@ -2,12 +2,17 @@ package com.d4rkr34lm.wgbuild;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 
+
+import com.d4rkr34lm.wgbuild.trail.*;
+import org.bukkit.Bukkit;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.plugin.PluginManager;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,20 +22,101 @@ import com.d4rkr34lm.wgbuild.plotSystem.PlotConstructor;
 public class WGBuild extends JavaPlugin {
 
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
-	private int idCounter = 1;
-	
+  private int idCounter = 1;
+
+	private static boolean recordingTrail = false;
+	private static boolean waitingToStartRecording = false;
+	private static ArrayList<TrailObject> trail = new ArrayList<TrailObject>();
+	private static HashMap<FallingBlock, TrailObject> lookupTable = new HashMap<FallingBlock, TrailObject>();
+	private static int tickTime;
+	private static int tickStart = 80;
+
+
 	@Override
 	public void onEnable() {
-		PlotConstructor plotConstructor = new PlotConstructor(this);
 
-		this.getServer().getPluginManager().registerEvents(plotConstructor, this);
-		this.getCommand("plot").setExecutor(plotConstructor);
-		loadPlotData();
+		registerPlugins();
+		registerCommands();
+    loadPlotData();
 	}
 
 	@Override
 	public void onDisable(){
-		savePlotData();
+		TrailManager.removeTrail(false);
+    savePlotData();
+	}
+
+	public void registerPlugins(){
+
+		PluginManager pm = Bukkit.getPluginManager();
+
+		pm.registerEvents(new PlotConstructor(this), this);
+
+		pm.registerEvents(new TntPrimeListener(this), this);
+		pm.registerEvents(new TntExplosionListener(), this);
+		pm.registerEvents(new TrailClickListener(), this);
+		pm.registerEvents(new GuiClickListener(this), this);
+	}
+
+	public void registerCommands(){
+		getCommand("trail").setExecutor(new TrailCommand());
+    getCommand("plot").setExecutor(new PlotConstructor(this));
+	}
+
+	public static void setRecordingTrail(boolean newState){
+		recordingTrail = newState;
+	}
+
+	public static boolean isRecordingTrail(){
+		return recordingTrail;
+	}
+
+	public static void setWaitingToStartRecording(boolean newState){
+		waitingToStartRecording = newState;
+	}
+
+	public static boolean isWaitingToStartRecording(){
+		return waitingToStartRecording;
+	}
+
+	public static ArrayList<TrailObject> getTrail(){
+		return trail;
+	}
+
+	public static void addTrail(TrailObject to){
+		trail.add(to);
+	}
+
+	public static void clearTrail(){
+		trail.clear();
+	}
+
+	public static void resetTickTime(){
+		tickTime = tickStart;
+	}
+
+	public static void addTickTime(){
+		tickTime++;
+	}
+
+	public static int getTickTime(){
+		return tickTime;
+	}
+
+	public static int getTickStart(){
+		return tickStart;
+	}
+
+	public static void putEntry(FallingBlock fb, TrailObject t){
+		lookupTable.put(fb, t);
+	}
+
+	public static HashMap<FallingBlock, TrailObject> getLookupTable(){
+		return lookupTable;
+	}
+
+	public static void clearLookupTable() {
+		lookupTable.clear();	
 	}
 
 	public void loadPlotData(){

@@ -6,5 +6,7 @@ authors: [ D4rkr34lm, PrinzAutistimus ]
 description: Tools for WarGear development
 
 commands:
+  trail:
+    description: This Command is used to use the trail feature
   plot:
     description: This command is used to interact with the plot system
