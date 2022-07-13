@@ -3,6 +3,7 @@ package com.d4rkr34lm.wgbuild.Simulator;
 import com.d4rkr34lm.wgbuild.WGBuild;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import java.util.ArrayList;
@@ -13,15 +14,20 @@ public class SimulationBlockManager {
 
     private static ArrayList<SimulationBlock> simBlocks = new ArrayList<SimulationBlock>();
     private static HashMap<Block, SimulationBlock> lookupTable = new HashMap<>();
+    private static HashMap<Player, Integer> playerSimulationPage = new HashMap<Player, Integer>();
 
     public SimulationBlockManager(){
 
     }
 
-    public static void addSimBlock(Block newSimulationBlock, boolean activated){
-        simBlocks.add(new SimulationBlock(newSimulationBlock, activated));
-        lookupTable.put(newSimulationBlock, simBlocks.get(simBlocks.size()-1));
+    public static void addSimBlock(Block newBlock, boolean activated){
+        simBlocks.add(new SimulationBlock(newBlock, activated));
+        lookupTable.put(newBlock, simBlocks.get(simBlocks.size()-1));
         WGBuild.getPlugin().getLogger().log(Level.INFO, "New Block added");
+    }
+
+    public static void changeSimBlock(Block changedBlock, boolean activated){
+
     }
 
     public static void removeSimBlock(Block oldBlock){
@@ -37,6 +43,18 @@ public class SimulationBlockManager {
 
     public static HashMap<Block, SimulationBlock> getLookupTable(){
         return lookupTable;
+    }
+
+    public static HashMap<Player, Integer> getPlayerSimulationPage(){
+        return playerSimulationPage;
+    }
+
+    public static void putPlayerPage(Player player, int page){
+        playerSimulationPage.put(player, page);
+    }
+
+    public static void removePlayerPage(Player player){
+        playerSimulationPage.remove(player);
     }
 
 }

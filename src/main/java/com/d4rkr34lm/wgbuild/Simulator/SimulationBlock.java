@@ -22,8 +22,8 @@ public class SimulationBlock {
     private Inventory simInv;
     private boolean activated;
 
-    private HashMap<Integer, Integer> queue = new HashMap<>();
-    private ArrayList<Integer> sortedQueue = new ArrayList<>();
+    private static HashMap<Integer, Integer> queue = new HashMap<>();
+    private static ArrayList<Integer> sortedQueue = new ArrayList<>();
 
     public SimulationBlock(Block block, boolean activated){
         simBlock = block;
@@ -83,12 +83,43 @@ public class SimulationBlock {
         im.setDisplayName("Tick");
         paper.setItemMeta(im);
 
+        ItemStack currPage = new ItemStack(Material.BOOK);
+        im = currPage.getItemMeta();
+        im.setDisplayName("Page " + page);
+        currPage.setItemMeta(im);
+
+        ItemStack activate = new ItemStack(Material.GREEN_CONCRETE);
+        im = activate.getItemMeta();
+        im.setDisplayName("§aActivate");
+        activate.setItemMeta(im);
+
+        ItemStack deactivate = new ItemStack(Material.RED_CONCRETE);
+        im = deactivate.getItemMeta();
+        im.setDisplayName("§cDeactivate");
+        deactivate.setItemMeta(im);
+
+        ItemStack nextPage = new ItemStack(Material.CAMPFIRE);
+        im = nextPage.getItemMeta();
+        im.setDisplayName("§6Next Page");
+        nextPage.setItemMeta(im);
+
+        ItemStack prevPage = new ItemStack(Material.SOUL_CAMPFIRE);
+        im = prevPage.getItemMeta();
+        im.setDisplayName("§9Prev Page");
+        prevPage.setItemMeta(im);
+
         for(int i = 0; i < 7; i++){
             simInv.setItem(i, increase);
             simInv.setItem(i + (2 * 9), decrease);
             simInv.setItem(i + (3 * 9), increase);
             simInv.setItem(i + (5 * 9), decrease);
         }
+
+        simInv.setItem(8, currPage);
+        simInv.setItem(8 + (2 * 9), activate);
+        simInv.setItem(8 + (3 * 9), deactivate);
+        simInv.setItem(7 + (5 * 9), prevPage);
+        simInv.setItem(8 + (5 * 9), nextPage);
 
         sortedQueue = getSortedHashMap(queue);
 
@@ -111,6 +142,10 @@ public class SimulationBlock {
 
         }
 
+    }
+
+    public static ArrayList<Integer> getSortedQueue(){
+        return sortedQueue;
     }
 
     public ArrayList<Integer> getSortedHashMap(HashMap<Integer, Integer> map){

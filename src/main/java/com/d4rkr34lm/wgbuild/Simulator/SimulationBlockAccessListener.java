@@ -33,6 +33,7 @@ public class SimulationBlockAccessListener implements Listener {
             e.setCancelled(true);
 
             player.openInventory(SimulationBlockManager.getLookupTable().get(clickedBlock).getSimulationInventory(0));
+            SimulationBlockManager.putPlayerPage(player, 0);
 
         }
 
