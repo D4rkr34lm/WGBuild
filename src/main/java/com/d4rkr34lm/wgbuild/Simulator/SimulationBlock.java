@@ -22,18 +22,25 @@ public class SimulationBlock {
     private Inventory simInv;
     private boolean activated;
 
-    private static HashMap<Integer, Integer> queue = new HashMap<>();
-    private static ArrayList<Integer> sortedQueue = new ArrayList<>();
+    private HashMap<Integer, Integer> queue = new HashMap<>();
+    private ArrayList<Integer> sortedQueue = new ArrayList<>();
 
     public SimulationBlock(Block block, boolean activated){
         simBlock = block;
         simInv = Bukkit.createInventory(null, 9 * 6, "§gTnt Prime Simulator");
         this.activated = activated;
 
-        queue.put(4, 1);
-        queue.put(1, 4);
-        queue.put(3, 2);
-        queue.put(2, 3);
+        queue.put(1, 1);
+        updateInventory(0);
+
+    }
+
+    public SimulationBlock(Block block, boolean activated, HashMap<Integer, Integer> queue){
+        simBlock = block;
+        simInv = Bukkit.createInventory(null, 9 * 6, "§gTnt Prime Simulator");
+        this.activated = activated;
+
+        this.queue = queue;
         updateInventory(0);
 
     }
@@ -133,7 +140,10 @@ public class SimulationBlock {
                 continue;
             }
 
-            int currKey = sortedQueue.get(i)+pageOffset;
+            WGBuild.getPlugin().getLogger().log(Level.INFO, "HashMap size: " + queue.size() + "\n"
+                                                                + "Sorted List size: " + sortedQueue.size());
+
+            int currKey = sortedQueue.get(i+pageOffset);
             paper.setAmount(currKey);
             tnt.setAmount(queue.get(currKey));
 
@@ -144,7 +154,7 @@ public class SimulationBlock {
 
     }
 
-    public static ArrayList<Integer> getSortedQueue(){
+    public ArrayList<Integer> getSortedQueue(){
         return sortedQueue;
     }
 
@@ -152,6 +162,16 @@ public class SimulationBlock {
         ArrayList<Integer> sorted = new ArrayList<>();
         map.keySet().stream().sorted().forEach(sorted::add);
         return sorted;
+    }
+
+    public void removeTick(int tick, int page){
+        queue.remove(tick);
+        updateInventory(page);
+    }
+
+    public void putTick(int tick, int amount, int page){
+        queue.put(tick, amount);
+        updateInventory(page);
     }
 
 }

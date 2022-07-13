@@ -2,10 +2,7 @@ package com.d4rkr34lm.wgbuild;
 
 import java.util.ArrayList;
 
-import com.d4rkr34lm.wgbuild.Simulator.SimulationBlockAccessListener;
-import com.d4rkr34lm.wgbuild.Simulator.SimulationBlockBreakListener;
-import com.d4rkr34lm.wgbuild.Simulator.SimulationBlockPlaceListener;
-import com.d4rkr34lm.wgbuild.Simulator.SimulationGuiClickListener;
+import com.d4rkr34lm.wgbuild.Simulator.*;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;

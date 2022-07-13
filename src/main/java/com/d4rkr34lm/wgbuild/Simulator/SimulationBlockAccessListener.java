@@ -32,8 +32,14 @@ public class SimulationBlockAccessListener implements Listener {
         if(blockType.equals(Material.GREEN_SHULKER_BOX) || blockType.equals(Material.RED_SHULKER_BOX)){
             e.setCancelled(true);
 
-            player.openInventory(SimulationBlockManager.getLookupTable().get(clickedBlock).getSimulationInventory(0));
-            SimulationBlockManager.putPlayerPage(player, 0);
+            int page = 0;
+
+            if(SimulationBlockManager.getPlayerSimulationPageMap().containsKey(e.getPlayer())){
+                SimulationBlockManager.removePlayerPage(e.getPlayer());
+            }
+
+            player.openInventory(SimulationBlockManager.getLookupTable().get(clickedBlock).getSimulationInventory(page));
+            SimulationBlockManager.putPlayerPage((Player) e.getPlayer(), page);
 
         }
 

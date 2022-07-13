@@ -45,7 +45,7 @@ public class SimulationBlockManager {
         return lookupTable;
     }
 
-    public static HashMap<Player, Integer> getPlayerSimulationPage(){
+    public static HashMap<Player, Integer> getPlayerSimulationPageMap(){
         return playerSimulationPage;
     }
 
