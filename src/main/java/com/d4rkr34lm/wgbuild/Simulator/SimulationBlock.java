@@ -1,5 +1,6 @@
 package com.d4rkr34lm.wgbuild.Simulator;
 
+import com.d4rkr34lm.wgbuild.WGBuild;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -7,23 +8,33 @@ import org.bukkit.entity.Item;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.checkerframework.checker.units.qual.A;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
 
 public class SimulationBlock {
 
     private Block simBlock;
     private Inventory simInv;
-    private HashMap<Integer, Integer> queue = new HashMap<>();
     private boolean activated;
+
+    private HashMap<Integer, Integer> queue = new HashMap<>();
+    private ArrayList<Integer> sortedQueue = new ArrayList<>();
 
     public SimulationBlock(Block block, boolean activated){
         simBlock = block;
         simInv = Bukkit.createInventory(null, 9 * 6, "§gTnt Prime Simulator");
         this.activated = activated;
 
+        queue.put(4, 1);
         queue.put(1, 1);
-        updateInventory(1);
+        queue.put(3, 1);
+        queue.put(2, 1);
+        updateInventory(0);
 
     }
 
@@ -72,8 +83,37 @@ public class SimulationBlock {
         im.setDisplayName("Tick");
         paper.setItemMeta(im);
 
+        for(int i = 0; i < 7; i++){
+            simInv.setItem(i, increase);
+            simInv.setItem(i + (2 * 9), decrease);
+            simInv.setItem(i + (3 * 9), increase);
+            simInv.setItem(i + (5 * 9), decrease);
+        }
 
+        sortedQueue = getSortedHashMap(queue);
 
+        for(int i = 0; i < 7; i++){
+
+            int pageOffset = page * 7;
+
+            if((i+pageOffset) >= sortedQueue.size()){
+                return;
+            }
+
+            int currKey = sortedQueue.get(i)+pageOffset;
+            paper.setAmount(currKey);
+            tnt.setAmount(queue.get(currKey));
+
+            simInv.setItem(i + 9, tnt);
+            simInv.setItem(i + (9 * 4), paper);
+        }
+
+    }
+
+    public ArrayList<Integer> getSortedHashMap(HashMap<Integer, Integer> map){
+        ArrayList<Integer> sorted = new ArrayList<>();
+        map.keySet().stream().sorted().forEach(sorted::add);
+        return sorted;
     }
 
 }
