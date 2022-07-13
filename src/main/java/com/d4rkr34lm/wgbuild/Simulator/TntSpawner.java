@@ -51,7 +51,6 @@ public class TntSpawner {
                     Bukkit.getScheduler().cancelTask(schedulerID);
                     spawnLocation.getWorld().getBlockAt(spawnLocation).setType(Material.GREEN_SHULKER_BOX);
                 }
-
             }
         }, 0, 1);
 
