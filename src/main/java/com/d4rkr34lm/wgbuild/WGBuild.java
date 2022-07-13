@@ -20,7 +20,6 @@ public class WGBuild extends JavaPlugin {
 	public void onEnable() {
 
 		plugin = this;
-
 		registerListener();
 	}
 

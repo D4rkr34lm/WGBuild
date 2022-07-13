@@ -32,7 +32,6 @@ public class SimulationBlock {
 
         queue.put(1, 1);
         updateInventory(0);
-
     }
 
     public SimulationBlock(Block block, boolean activated, HashMap<Integer, Integer> queue){
@@ -42,7 +41,6 @@ public class SimulationBlock {
 
         this.queue = queue;
         updateInventory(0);
-
     }
 
     public Block getBlock(){

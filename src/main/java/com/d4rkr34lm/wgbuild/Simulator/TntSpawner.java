@@ -47,7 +47,7 @@ public class TntSpawner {
 
                 currentTick++;
 
-                if(currentTick >= (latestTick + 81)){
+                if(currentTick >= (latestTick + 91)){
                     Bukkit.getScheduler().cancelTask(schedulerID);
                     spawnLocation.getWorld().getBlockAt(spawnLocation).setType(Material.GREEN_SHULKER_BOX);
                 }
