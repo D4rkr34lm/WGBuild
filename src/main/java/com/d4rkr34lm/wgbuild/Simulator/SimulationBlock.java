@@ -31,9 +31,9 @@ public class SimulationBlock {
         this.activated = activated;
 
         queue.put(4, 1);
-        queue.put(1, 1);
-        queue.put(3, 1);
-        queue.put(2, 1);
+        queue.put(1, 4);
+        queue.put(3, 2);
+        queue.put(2, 3);
         updateInventory(0);
 
     }
@@ -97,15 +97,18 @@ public class SimulationBlock {
             int pageOffset = page * 7;
 
             if((i+pageOffset) >= sortedQueue.size()){
-                return;
+                simInv.setItem(i + (1 * 9), null);
+                simInv.setItem(i + (4 * 9), null);
+                continue;
             }
 
             int currKey = sortedQueue.get(i)+pageOffset;
             paper.setAmount(currKey);
             tnt.setAmount(queue.get(currKey));
 
-            simInv.setItem(i + 9, tnt);
-            simInv.setItem(i + (9 * 4), paper);
+            simInv.setItem(i + (1 * 9), tnt);
+            simInv.setItem(i + (4 * 9), paper);
+
         }
 
     }
