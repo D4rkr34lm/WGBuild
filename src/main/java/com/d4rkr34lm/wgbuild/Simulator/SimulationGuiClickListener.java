@@ -16,8 +16,6 @@ public class SimulationGuiClickListener implements Listener {
     @EventHandler
     public void onGuiClick(InventoryClickEvent e){
 
-        e.setCancelled(true);
-
         Player player = (Player) e.getWhoClicked();
 
         if(!e.getView().getTitle().equals("§gTnt Prime Simulator")){
@@ -29,6 +27,8 @@ public class SimulationGuiClickListener implements Listener {
         if(slot == -999){
             return;
         }
+
+        e.setCancelled(true);
 
         int column = slot % 9;
         int row = (int) Math.floor(slot/9);

@@ -37,6 +37,7 @@ public class WGBuild extends JavaPlugin {
 		pm.registerEvents(new SimulationBlockBreakListener(), this);
 		pm.registerEvents(new SimulationBlockAccessListener(), this);
 		pm.registerEvents(new SimulationGuiClickListener(), this);
+		pm.registerEvents(new SimulationActivationListener(), this);
 	}
 
 }

@@ -23,7 +23,6 @@ public class SimulationBlockManager {
     public static void addSimBlock(Block newBlock, boolean activated){
         simBlocks.add(new SimulationBlock(newBlock, activated));
         lookupTable.put(newBlock, simBlocks.get(simBlocks.size()-1));
-        WGBuild.getPlugin().getLogger().log(Level.INFO, "New Block added");
     }
 
     public static void changeSimBlock(Block changedBlock, boolean activated){
@@ -34,7 +33,6 @@ public class SimulationBlockManager {
         SimulationBlock oldSimBlock = lookupTable.get(oldBlock);
         simBlocks.remove(oldSimBlock);
         lookupTable.remove(oldBlock);
-        WGBuild.getPlugin().getLogger().log(Level.INFO, "Old Block removed");
     }
 
     public static ArrayList<SimulationBlock> getSimulationBlocks(){

@@ -140,9 +140,6 @@ public class SimulationBlock {
                 continue;
             }
 
-            WGBuild.getPlugin().getLogger().log(Level.INFO, "HashMap size: " + queue.size() + "\n"
-                                                                + "Sorted List size: " + sortedQueue.size());
-
             int currKey = sortedQueue.get(i+pageOffset);
             paper.setAmount(currKey);
             tnt.setAmount(queue.get(currKey));
@@ -152,6 +149,10 @@ public class SimulationBlock {
 
         }
 
+    }
+
+    public HashMap<Integer, Integer> getQueue(){
+        return queue;
     }
 
     public ArrayList<Integer> getSortedQueue(){
