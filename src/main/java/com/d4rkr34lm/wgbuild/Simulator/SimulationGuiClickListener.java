@@ -168,6 +168,12 @@ public class SimulationGuiClickListener implements Listener {
             int playerPage = SimulationBlockManager.getPlayerSimulationPageMap().get((Player) e.getWhoClicked());
 
             sb.removeTick(currentTick, playerPage);
+        }else if(e.getCurrentItem().getType().equals(Material.GREEN_CONCRETE)){
+            sb.activate();
+            sb.getBlock().setType(Material.GREEN_SHULKER_BOX);
+        }else if(e.getCurrentItem().getType().equals(Material.RED_CONCRETE)){
+            sb.deactivate();
+            sb.getBlock().setType(Material.RED_SHULKER_BOX);
         }
 
     }
