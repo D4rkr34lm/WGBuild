@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
+import com.d4rkr34lm.wgbuild.plotSystem.PlotCommand;
 import com.d4rkr34lm.wgbuild.trail.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.FallingBlock;
@@ -34,23 +35,26 @@ public class WGBuild extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-
-		registerPlugins();
-		registerCommands();
-    loadPlotData();
+		loadPlotData();
+		registerEventListeners();
+		registerCommandListeners();
 	}
 
 	@Override
 	public void onDisable(){
 		TrailManager.removeTrail(false);
-    savePlotData();
+    	savePlotData();
 	}
 
-	public void registerPlugins(){
+	public void registerEventListeners(){
 
 		PluginManager pm = Bukkit.getPluginManager();
 
 		pm.registerEvents(new PlotConstructor(this), this);
+
+		for(Plot plot : plots){
+			pm.registerEvents(plot, this);
+		}
 
 		pm.registerEvents(new TntPrimeListener(this), this);
 		pm.registerEvents(new TntExplosionListener(), this);
@@ -58,9 +62,9 @@ public class WGBuild extends JavaPlugin {
 		pm.registerEvents(new GuiClickListener(this), this);
 	}
 
-	public void registerCommands(){
+	public void registerCommandListeners(){
 		getCommand("trail").setExecutor(new TrailCommand());
-    getCommand("plot").setExecutor(new PlotConstructor(this));
+    	getCommand("plot").setExecutor(new PlotCommand(this));
 	}
 
 	public static void setRecordingTrail(boolean newState){
@@ -119,6 +123,10 @@ public class WGBuild extends JavaPlugin {
 		lookupTable.clear();	
 	}
 
+
+	/*
+	 * Plot System
+	 */
 	public void loadPlotData(){
 		Clipboard plotSchem = null;
 		File schemFile = new File("./plugins/WGBuild/plot.schem");
@@ -143,7 +151,7 @@ public class WGBuild extends JavaPlugin {
 				String[] lineParts = line.split(",");
 
 				Location placementLocation = new Location(Bukkit.getWorld("world"), Integer.parseInt(lineParts[0]), Integer.parseInt(lineParts[1]), Integer.parseInt(lineParts[2]));
-				Plot plot = new Plot(placementLocation, plotSchem);
+				Plot plot = new Plot(placementLocation, plotSchem, this);
 				addPlot(plot);
 
 				line = bufferedReader.readLine();
@@ -184,8 +192,13 @@ public class WGBuild extends JavaPlugin {
 		}
 
 		plots.add(newPlot);
+		Bukkit.getPluginManager().registerEvents(newPlot, this);
 		newPlot.setId(idCounter);
 		idCounter++;
 		return true;
+	}
+
+	public ArrayList<Plot> getPlots(){
+		return  plots;
 	}
 }

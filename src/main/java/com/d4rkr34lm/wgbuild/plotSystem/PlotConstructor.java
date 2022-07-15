@@ -30,7 +30,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import org.jetbrains.annotations.NotNull;
 
-public class PlotConstructor implements Listener, CommandExecutor {
+public class PlotConstructor implements Listener {
 	
 	private WGBuild parent;
 	Clipboard plotSchem = null;
@@ -49,19 +49,6 @@ public class PlotConstructor implements Listener, CommandExecutor {
 			err.printStackTrace();
 		}
 	}
-	@Override
-	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-		if(sender instanceof Player){
-			Player player = (Player) sender;
-
-			switch(args[0]){
-				case "new":
-					createNewPlot(player.getLocation());
-					break;
-			}
-		}
-		return  false;
-	}
 
 	public void createNewPlot(Location placementLocation){
 		Logger logger = parent.getLogger();
@@ -72,7 +59,7 @@ public class PlotConstructor implements Listener, CommandExecutor {
 
 		parent.getServer().broadcastMessage("Plot construction started at " + x + " " + y + " " + z);
 
-		Plot plot = new Plot(new Location(placementLocation.getWorld(), x, y, z), plotSchem);
+		Plot plot = new Plot(new Location(placementLocation.getWorld(), x, y, z), plotSchem, parent);
 
 		if(parent.addPlot(plot)){
 
