@@ -3,9 +3,11 @@ package com.d4rkr34lm.wgbuild;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 
-import com.d4rkr34lm.wgbuild.plotSystem.PlotCommand;
+import com.d4rkr34lm.wgbuild.plotSystem.commands.*;
 import com.d4rkr34lm.wgbuild.plotSystem.ScoreboardManager;
 import com.d4rkr34lm.wgbuild.trail.*;
 import org.bukkit.Bukkit;
@@ -43,7 +45,7 @@ public class WGBuild extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		loadPlotData();
+		loadPlots();
 		registerEventListeners();
 		registerCommandListeners();
 	}
@@ -51,7 +53,7 @@ public class WGBuild extends JavaPlugin {
 	@Override
 	public void onDisable(){
 		TrailManager.removeTrail(false);
-    	savePlotData();
+    	savePlots();
 	}
 
 	public void registerEventListeners(){
@@ -73,6 +75,16 @@ public class WGBuild extends JavaPlugin {
 	public void registerCommandListeners(){
 		getCommand("trail").setExecutor(new TrailCommand());
     	getCommand("plot").setExecutor(new PlotCommand(this));
+		getCommand("sl").setExecutor(new StopLagCommand(this));
+		getCommand("tnt").setExecutor(new TntCommand(this));
+		getCommand("protect").setExecutor(new CannonProtectionCommand(this));
+		getCommand("ground").setExecutor(new PasteCommands(this));
+		getCommand("tb1").setExecutor(new PasteCommands(this));
+		getCommand("tb2").setExecutor(new PasteCommands(this));
+		getCommand("tb3").setExecutor(new PasteCommands(this));
+		getCommand("frm1").setExecutor(new PasteCommands(this));
+		getCommand("frm2").setExecutor(new PasteCommands(this));
+		getCommand("frm3").setExecutor(new PasteCommands(this));
 	}
 
 	/*
@@ -138,21 +150,35 @@ public class WGBuild extends JavaPlugin {
 	/*
 	 * Plot System
 	 */
-	public void loadPlotData(){
-		Clipboard plotSchem = null;
-		File schemFile = new File("./plugins/WGBuild/plot.schem");
-		ClipboardFormat format = ClipboardFormats.findByFile(schemFile);
-		ClipboardReader reader;
-		try {
-			reader = format.getReader(new FileInputStream(schemFile));
-			plotSchem = reader.read();
+	public void loadPlots(){
+		Clipboard[] clipboards = new Clipboard[7];
+
+		ArrayList<File> schematics = new ArrayList<File>();
+
+		schematics.add(new File("./plugins/WGBuild/baseplate.schem"));
+		schematics.add(new File("./plugins/WGBuild/tb1.schem"));
+		schematics.add(new File("./plugins/WGBuild/tb2.schem"));
+		schematics.add(new File("./plugins/WGBuild/tb3.schem"));
+		schematics.add(new File("./plugins/WGBuild/frm1.schem"));
+		schematics.add(new File("./plugins/WGBuild/frm2.schem"));
+		schematics.add(new File("./plugins/WGBuild/frm3.schem"));
+
+		for(int i = 0; i < 7; i++){
+			File file = schematics.get(i);
+			ClipboardFormat format = ClipboardFormats.findByFile(file);
+			ClipboardReader reader;
+			try {
+				reader = format.getReader(new FileInputStream(file));
+				clipboards[i] = reader.read();
+				reader.close();
+			}
+			catch (IOException err) {
+				err.printStackTrace();
+			}
 		}
-		catch (IOException err) {
-			err.printStackTrace();
-		}
+
 
 		File plotsFile = new File("./plugins/WGBuild/plots.dat");
-
 		try{
 			FileReader fileReader = new FileReader(plotsFile);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -162,7 +188,7 @@ public class WGBuild extends JavaPlugin {
 				String[] lineParts = line.split(",");
 
 				Location placementLocation = new Location(Bukkit.getWorld("world"), Integer.parseInt(lineParts[0]), Integer.parseInt(lineParts[1]), Integer.parseInt(lineParts[2]));
-				Plot plot = new Plot(placementLocation, plotSchem, this);
+				Plot plot = new Plot(placementLocation, clipboards, this);
 				addPlot(plot);
 
 				line = bufferedReader.readLine();
@@ -175,7 +201,7 @@ public class WGBuild extends JavaPlugin {
 		}
 	}
 
-	public void savePlotData(){
+	public void savePlots(){
 		File file = new File("./plugins/WGBuild/plots.dat");
 
 		try{

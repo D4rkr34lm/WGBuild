@@ -1,8 +1,15 @@
 package com.d4rkr34lm.wgbuild.plotSystem;
 
 import com.d4rkr34lm.wgbuild.WGBuild;
+import com.sk89q.worldedit.EditSession;
+import com.sk89q.worldedit.WorldEdit;
+import com.sk89q.worldedit.WorldEditException;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
+import com.sk89q.worldedit.function.operation.Operation;
+import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.session.ClipboardHolder;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -17,8 +24,7 @@ public class Plot implements Listener {
 	 * Data
 	 */
 	private WGBuild parent;
-
-	private Clipboard plotSchem;
+	private Clipboard[] clipboards;
 	private Location placementLocation;
 	private Location corner;
 	private BlockVector3 size;
@@ -34,13 +40,14 @@ public class Plot implements Listener {
 	/*
 	 * Construction
 	 */
-	public Plot(Location placementLocation, Clipboard plotSchem, WGBuild parent) {
+	public Plot(Location placementLocation, Clipboard[] clipboards, WGBuild parent) {
 		this.placementLocation = placementLocation;
-		size = plotSchem.getDimensions();
 		this.parent = parent;
+		this.clipboards = clipboards;
+		size = clipboards[0].getDimensions();
 
-		int xOffset = Math.abs(plotSchem.getOrigin().getBlockX() - plotSchem.getMinimumPoint().getBlockX());
-		int zOffset = Math.abs(plotSchem.getOrigin().getBlockZ() - plotSchem.getMinimumPoint().getBlockZ());
+		int xOffset = Math.abs(clipboards[0].getOrigin().getBlockX() - clipboards[0].getMinimumPoint().getBlockX());
+		int zOffset = Math.abs(clipboards[0].getOrigin().getBlockZ() - clipboards[0].getMinimumPoint().getBlockZ());
 		corner = new Location(placementLocation.getWorld(), placementLocation.getBlockX() - xOffset, placementLocation.getBlockY(), placementLocation.getBlockZ() - zOffset);
 	}
 
@@ -49,6 +56,22 @@ public class Plot implements Listener {
 				plot.getCorner().getBlockZ() + plot.getSize().getBlockZ() > corner.getBlockZ() &&
 				corner.getBlockX() + size.getBlockX() > plot.getCorner().getBlockX() &&
 				corner.getBlockZ() + size.getBlockZ() > plot.getCorner().getBlockZ();
+	}
+
+	/*
+	 * Schematic pasting
+	 */
+	public void pasteSchematic(int index){
+		try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(placementLocation.getWorld()))) {
+			Operation operation = new ClipboardHolder(clipboards[index])
+					.createPaste(editSession)
+					.to(BlockVector3.at(placementLocation.getBlockX(), placementLocation.getBlockY(), placementLocation.getBlockZ()))
+					.ignoreAirBlocks(true)
+					.build();
+			Operations.complete(operation);
+		} catch (WorldEditException err) {
+			err.printStackTrace();
+		}
 	}
 
 	/*
