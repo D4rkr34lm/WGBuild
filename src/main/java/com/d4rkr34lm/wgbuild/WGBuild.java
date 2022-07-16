@@ -85,6 +85,8 @@ public class WGBuild extends JavaPlugin {
 		getCommand("frm1").setExecutor(new PasteCommands(this));
 		getCommand("frm2").setExecutor(new PasteCommands(this));
 		getCommand("frm3").setExecutor(new PasteCommands(this));
+		getCommand("tbm").setExecutor(new PasteCommands(this));
+		getCommand("frmm").setExecutor(new PasteCommands(this));
 	}
 
 	/*
@@ -151,7 +153,7 @@ public class WGBuild extends JavaPlugin {
 	 * Plot System
 	 */
 	public void loadPlots(){
-		Clipboard[] clipboards = new Clipboard[7];
+		Clipboard[] clipboards = new Clipboard[9];
 
 		ArrayList<File> schematics = new ArrayList<File>();
 
@@ -162,8 +164,11 @@ public class WGBuild extends JavaPlugin {
 		schematics.add(new File("./plugins/WGBuild/frm1.schem"));
 		schematics.add(new File("./plugins/WGBuild/frm2.schem"));
 		schematics.add(new File("./plugins/WGBuild/frm3.schem"));
+		schematics.add(new File("./plugins/WGBuild/tbm.schem"));
+		schematics.add(new File("./plugins/WGBuild/frmm.schem"));
 
-		for(int i = 0; i < 7; i++){
+
+		for(int i = 0; i < 9; i++){
 			File file = schematics.get(i);
 			ClipboardFormat format = ClipboardFormats.findByFile(file);
 			ClipboardReader reader;

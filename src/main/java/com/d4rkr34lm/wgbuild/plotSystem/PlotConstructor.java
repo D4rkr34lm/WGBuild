@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 public class PlotConstructor implements Listener {
 	
 	private WGBuild parent;
-	Clipboard[] clipboards = new Clipboard[7];
+	Clipboard[] clipboards = new Clipboard[9];
 	
 	public PlotConstructor(WGBuild parent) {
 		this.parent = parent;
@@ -50,8 +50,10 @@ public class PlotConstructor implements Listener {
 		schematics.add(new File("./plugins/WGBuild/frm1.schem"));
 		schematics.add(new File("./plugins/WGBuild/frm2.schem"));
 		schematics.add(new File("./plugins/WGBuild/frm3.schem"));
+		schematics.add(new File("./plugins/WGBuild/tbm.schem"));
+		schematics.add(new File("./plugins/WGBuild/frmm.schem"));
 
-		for(int i = 0; i < 7; i++){
+		for(int i = 0; i < 9; i++){
 			File file = schematics.get(i);
 			ClipboardFormat format = ClipboardFormats.findByFile(file);
 			ClipboardReader reader;

@@ -30,3 +30,7 @@ commands:
     description: Pastes Tier II frame
   frm3:
     description: Pastes Tier III frame
+  tbm:
+    description: Pastes MiniWarGear testblock
+  frmm:
+    description: Pastes MiniWarGear frame

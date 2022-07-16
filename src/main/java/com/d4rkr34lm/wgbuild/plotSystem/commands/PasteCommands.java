@@ -44,6 +44,12 @@ public class PasteCommands implements CommandExecutor {
                         case "frm3":
                             plot.pasteSchematic(6);
                             break;
+                        case "tbm":
+                            plot.pasteSchematic(7);
+                            break;
+                        case "frmm":
+                            plot.pasteSchematic(8);
+                            break;
                     }
                 }
             }
