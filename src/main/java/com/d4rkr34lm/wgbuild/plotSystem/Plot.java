@@ -3,7 +3,6 @@ package com.d4rkr34lm.wgbuild.plotSystem;
 import com.d4rkr34lm.wgbuild.WGBuild;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.math.BlockVector3;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
@@ -14,6 +13,9 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 
 public class Plot implements Listener {
 
+	/*
+	 * Data
+	 */
 	private WGBuild parent;
 
 	private Clipboard plotSchem;
@@ -27,8 +29,11 @@ public class Plot implements Listener {
 	 */
 	private boolean tntEnabled = true;
 	private boolean cannonProtectionEnabled = true;
-	private boolean stopLag = false;
-	
+	private boolean stopLagEnabled = false;
+
+	/*
+	 * Construction
+	 */
 	public Plot(Location placementLocation, Clipboard plotSchem, WGBuild parent) {
 		this.placementLocation = placementLocation;
 		size = plotSchem.getDimensions();
@@ -46,6 +51,9 @@ public class Plot implements Listener {
 				corner.getBlockZ() + size.getBlockZ() > plot.getCorner().getBlockZ();
 	}
 
+	/*
+	 * Tnt settings and cannon protection
+	 */
 	@EventHandler
 	public void onTntExplosion(EntityExplodeEvent e) {
 		if(e.getEntityType() == EntityType.PRIMED_TNT){
@@ -64,10 +72,13 @@ public class Plot implements Listener {
 		}
 	}
 
+	/*
+	 * StopLag
+	 */
 	@EventHandler
 	public void onBlockUpdate(BlockPhysicsEvent e){
 		if(isInsideArea(e.getBlock().getLocation())){
-			if(stopLag){
+			if(stopLagEnabled){
 				e.setCancelled(true);
 			}
 		}
@@ -76,12 +87,15 @@ public class Plot implements Listener {
 	@EventHandler
 	public void onRedstoneUpdate(BlockRedstoneEvent e){
 		if(isInsideArea(e.getBlock().getLocation())){
-			if(stopLag){
+			if(stopLagEnabled){
 				e.setNewCurrent(e.getOldCurrent());
 			}
 		}
 	}
 
+	/*
+	 * Logic Methods
+	 */
 	public boolean isInsideArea(Location location) {
 		return location.getBlockX() >= corner.getBlockX() && location.getBlockX() <= corner.getBlockX() + size.getBlockX()
 				&& location.getBlockZ() >= corner.getBlockZ() && location.getBlockZ() <= corner.getBlockZ() + size.getBlockZ();
@@ -92,11 +106,14 @@ public class Plot implements Listener {
 				&& location.getBlockZ() >= corner.getBlockZ() && location.getBlockZ() <= placementLocation.getBlockZ() + 25;
 	}
 
+	/*
+	 * Getters / Setters
+	 */
 	public void setId(int id){
 		this.id = id;
 	}
 
-	public int getId(int id){
+	public int getId(){
 		return  id;
 	}
 
@@ -128,11 +145,11 @@ public class Plot implements Listener {
 		return  cannonProtectionEnabled;
 	}
 
-	public void setStopLag(boolean stopLag){
-		this.stopLag = stopLag;
+	public void setStopLagEnabled(boolean stopLagEnabled){
+		this.stopLagEnabled = stopLagEnabled;
 	}
 
-	public boolean isStopLag(){
-		return  stopLag;
+	public boolean isStopLagEnabled(){
+		return stopLagEnabled;
 	}
 }

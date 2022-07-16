@@ -6,6 +6,7 @@ import java.util.HashMap;
 
 
 import com.d4rkr34lm.wgbuild.plotSystem.PlotCommand;
+import com.d4rkr34lm.wgbuild.plotSystem.ScoreboardManager;
 import com.d4rkr34lm.wgbuild.trail.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.FallingBlock;
@@ -22,9 +23,16 @@ import com.d4rkr34lm.wgbuild.plotSystem.PlotConstructor;
 
 public class WGBuild extends JavaPlugin {
 
+	/*
+	 * PlotSystem
+	 */
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
-  private int idCounter = 1;
+	private ScoreboardManager scoreboardManager = new ScoreboardManager(this);
+    private int plotIdCounter = 1;
 
+	/*
+	 * Trail
+	 */
 	private static boolean recordingTrail = false;
 	private static boolean waitingToStartRecording = false;
 	private static ArrayList<TrailObject> trail = new ArrayList<TrailObject>();
@@ -51,10 +59,10 @@ public class WGBuild extends JavaPlugin {
 		PluginManager pm = Bukkit.getPluginManager();
 
 		pm.registerEvents(new PlotConstructor(this), this);
-
 		for(Plot plot : plots){
 			pm.registerEvents(plot, this);
 		}
+		pm.registerEvents(scoreboardManager, this);
 
 		pm.registerEvents(new TntPrimeListener(this), this);
 		pm.registerEvents(new TntExplosionListener(), this);
@@ -67,6 +75,9 @@ public class WGBuild extends JavaPlugin {
     	getCommand("plot").setExecutor(new PlotCommand(this));
 	}
 
+	/*
+	 * Trail
+	 */
 	public static void setRecordingTrail(boolean newState){
 		recordingTrail = newState;
 	}
@@ -193,12 +204,16 @@ public class WGBuild extends JavaPlugin {
 
 		plots.add(newPlot);
 		Bukkit.getPluginManager().registerEvents(newPlot, this);
-		newPlot.setId(idCounter);
-		idCounter++;
+		newPlot.setId(plotIdCounter);
+		plotIdCounter++;
 		return true;
 	}
 
 	public ArrayList<Plot> getPlots(){
 		return  plots;
+	}
+
+	public ScoreboardManager getScoreboardManager(){
+		return  scoreboardManager;
 	}
 }

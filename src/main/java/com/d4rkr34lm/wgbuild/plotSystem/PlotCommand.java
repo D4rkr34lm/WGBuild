@@ -57,8 +57,8 @@ public class PlotCommand implements CommandExecutor {
                 case "sl":
                     for(Plot plot : parent.getPlots()){
                         if(plot.isInsideArea(player.getLocation())){
-                            plot.setStopLag(!plot.isStopLag());
-                            if(plot.isStopLag()){
+                            plot.setStopLagEnabled(!plot.isStopLagEnabled());
+                            if(plot.isStopLagEnabled()){
                                 parent.getServer().broadcastMessage("StopLag has been enabled");
                             }
                             else {
@@ -68,6 +68,7 @@ public class PlotCommand implements CommandExecutor {
                     }
                     break;
             }
+            parent.getScoreboardManager().updateScoreboard(player);
         }
         return  false;
     }
