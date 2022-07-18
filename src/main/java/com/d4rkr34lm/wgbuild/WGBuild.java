@@ -3,8 +3,12 @@ package com.d4rkr34lm.wgbuild;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 
+import com.d4rkr34lm.wgbuild.plotSystem.commands.*;
+import com.d4rkr34lm.wgbuild.plotSystem.ScoreboardManager;
 import com.d4rkr34lm.wgbuild.trail.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.FallingBlock;
@@ -21,9 +25,16 @@ import com.d4rkr34lm.wgbuild.plotSystem.PlotConstructor;
 
 public class WGBuild extends JavaPlugin {
 
+	/*
+	 * PlotSystem
+	 */
 	private ArrayList<Plot> plots = new ArrayList<Plot>();
-  private int idCounter = 1;
+	private ScoreboardManager scoreboardManager = new ScoreboardManager(this);
+    private int plotIdCounter = 1;
 
+	/*
+	 * Trail
+	 */
 	private static boolean recordingTrail = false;
 	private static boolean waitingToStartRecording = false;
 	private static ArrayList<TrailObject> trail = new ArrayList<TrailObject>();
@@ -34,23 +45,26 @@ public class WGBuild extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-
-		registerPlugins();
-		registerCommands();
-    loadPlotData();
+		loadPlots();
+		registerEventListeners();
+		registerCommandListeners();
 	}
 
 	@Override
 	public void onDisable(){
 		TrailManager.removeTrail(false);
-    savePlotData();
+    	savePlots();
 	}
 
-	public void registerPlugins(){
+	public void registerEventListeners(){
 
 		PluginManager pm = Bukkit.getPluginManager();
 
 		pm.registerEvents(new PlotConstructor(this), this);
+		for(Plot plot : plots){
+			pm.registerEvents(plot, this);
+		}
+		pm.registerEvents(scoreboardManager, this);
 
 		pm.registerEvents(new TntPrimeListener(this), this);
 		pm.registerEvents(new TntExplosionListener(), this);
@@ -58,11 +72,26 @@ public class WGBuild extends JavaPlugin {
 		pm.registerEvents(new GuiClickListener(this), this);
 	}
 
-	public void registerCommands(){
+	public void registerCommandListeners(){
 		getCommand("trail").setExecutor(new TrailCommand());
-    getCommand("plot").setExecutor(new PlotConstructor(this));
+    	getCommand("plot").setExecutor(new PlotCommand(this));
+		getCommand("sl").setExecutor(new StopLagCommand(this));
+		getCommand("tnt").setExecutor(new TntCommand(this));
+		getCommand("protect").setExecutor(new CannonProtectionCommand(this));
+		getCommand("ground").setExecutor(new PasteCommands(this));
+		getCommand("tb1").setExecutor(new PasteCommands(this));
+		getCommand("tb2").setExecutor(new PasteCommands(this));
+		getCommand("tb3").setExecutor(new PasteCommands(this));
+		getCommand("frm1").setExecutor(new PasteCommands(this));
+		getCommand("frm2").setExecutor(new PasteCommands(this));
+		getCommand("frm3").setExecutor(new PasteCommands(this));
+		getCommand("tbm").setExecutor(new PasteCommands(this));
+		getCommand("frmm").setExecutor(new PasteCommands(this));
 	}
 
+	/*
+	 * Trail
+	 */
 	public static void setRecordingTrail(boolean newState){
 		recordingTrail = newState;
 	}
@@ -119,21 +148,42 @@ public class WGBuild extends JavaPlugin {
 		lookupTable.clear();	
 	}
 
-	public void loadPlotData(){
-		Clipboard plotSchem = null;
-		File schemFile = new File("./plugins/WGBuild/plot.schem");
-		ClipboardFormat format = ClipboardFormats.findByFile(schemFile);
-		ClipboardReader reader;
-		try {
-			reader = format.getReader(new FileInputStream(schemFile));
-			plotSchem = reader.read();
+
+	/*
+	 * Plot System
+	 */
+	public void loadPlots(){
+		Clipboard[] clipboards = new Clipboard[9];
+
+		ArrayList<File> schematics = new ArrayList<File>();
+
+		schematics.add(new File("./plugins/WGBuild/baseplate.schem"));
+		schematics.add(new File("./plugins/WGBuild/tb1.schem"));
+		schematics.add(new File("./plugins/WGBuild/tb2.schem"));
+		schematics.add(new File("./plugins/WGBuild/tb3.schem"));
+		schematics.add(new File("./plugins/WGBuild/frm1.schem"));
+		schematics.add(new File("./plugins/WGBuild/frm2.schem"));
+		schematics.add(new File("./plugins/WGBuild/frm3.schem"));
+		schematics.add(new File("./plugins/WGBuild/tbm.schem"));
+		schematics.add(new File("./plugins/WGBuild/frmm.schem"));
+
+
+		for(int i = 0; i < 9; i++){
+			File file = schematics.get(i);
+			ClipboardFormat format = ClipboardFormats.findByFile(file);
+			ClipboardReader reader;
+			try {
+				reader = format.getReader(new FileInputStream(file));
+				clipboards[i] = reader.read();
+				reader.close();
+			}
+			catch (IOException err) {
+				err.printStackTrace();
+			}
 		}
-		catch (IOException err) {
-			err.printStackTrace();
-		}
+
 
 		File plotsFile = new File("./plugins/WGBuild/plots.dat");
-
 		try{
 			FileReader fileReader = new FileReader(plotsFile);
 			BufferedReader bufferedReader = new BufferedReader(fileReader);
@@ -143,7 +193,7 @@ public class WGBuild extends JavaPlugin {
 				String[] lineParts = line.split(",");
 
 				Location placementLocation = new Location(Bukkit.getWorld("world"), Integer.parseInt(lineParts[0]), Integer.parseInt(lineParts[1]), Integer.parseInt(lineParts[2]));
-				Plot plot = new Plot(placementLocation, plotSchem);
+				Plot plot = new Plot(placementLocation, clipboards, this);
 				addPlot(plot);
 
 				line = bufferedReader.readLine();
@@ -156,7 +206,7 @@ public class WGBuild extends JavaPlugin {
 		}
 	}
 
-	public void savePlotData(){
+	public void savePlots(){
 		File file = new File("./plugins/WGBuild/plots.dat");
 
 		try{
@@ -184,8 +234,17 @@ public class WGBuild extends JavaPlugin {
 		}
 
 		plots.add(newPlot);
-		newPlot.setId(idCounter);
-		idCounter++;
+		Bukkit.getPluginManager().registerEvents(newPlot, this);
+		newPlot.setId(plotIdCounter);
+		plotIdCounter++;
 		return true;
+	}
+
+	public ArrayList<Plot> getPlots(){
+		return  plots;
+	}
+
+	public ScoreboardManager getScoreboardManager(){
+		return  scoreboardManager;
 	}
 }

@@ -3,6 +3,9 @@ package com.d4rkr34lm.wgbuild.plotSystem;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.logging.Logger;
 
 import com.d4rkr34lm.wgbuild.WGBuild;
@@ -30,57 +33,58 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import org.jetbrains.annotations.NotNull;
 
-public class PlotConstructor implements Listener, CommandExecutor {
+public class PlotConstructor implements Listener {
 	
 	private WGBuild parent;
-	Clipboard plotSchem = null;
+	Clipboard[] clipboards = new Clipboard[9];
 	
 	public PlotConstructor(WGBuild parent) {
 		this.parent = parent;
 
-		File file = new File("./plugins/WGBuild/plot.schem");
-		ClipboardFormat format = ClipboardFormats.findByFile(file);
-		ClipboardReader reader;
-		try {
-			reader = format.getReader(new FileInputStream(file));
-			plotSchem = reader.read();
-		}
-		catch (IOException err) {
-			err.printStackTrace();
-		}
-	}
-	@Override
-	public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-		if(sender instanceof Player){
-			Player player = (Player) sender;
+		ArrayList<File> schematics = new ArrayList<File>();
 
-			switch(args[0]){
-				case "new":
-					createNewPlot(player.getLocation());
-					break;
+		schematics.add(new File("./plugins/WGBuild/baseplate.schem"));
+		schematics.add(new File("./plugins/WGBuild/tb1.schem"));
+		schematics.add(new File("./plugins/WGBuild/tb2.schem"));
+		schematics.add(new File("./plugins/WGBuild/tb3.schem"));
+		schematics.add(new File("./plugins/WGBuild/frm1.schem"));
+		schematics.add(new File("./plugins/WGBuild/frm2.schem"));
+		schematics.add(new File("./plugins/WGBuild/frm3.schem"));
+		schematics.add(new File("./plugins/WGBuild/tbm.schem"));
+		schematics.add(new File("./plugins/WGBuild/frmm.schem"));
+
+		for(int i = 0; i < 9; i++){
+			File file = schematics.get(i);
+			ClipboardFormat format = ClipboardFormats.findByFile(file);
+			ClipboardReader reader;
+			try {
+				reader = format.getReader(new FileInputStream(file));
+				clipboards[i] = reader.read();
+				reader.close();
+			}
+			catch (IOException err) {
+				err.printStackTrace();
 			}
 		}
-		return  false;
 	}
 
 	public void createNewPlot(Location placementLocation){
-		Logger logger = parent.getLogger();
-
 		int x = placementLocation.getBlockX();
 		int y = placementLocation.getBlock().getLocation().getBlockY();
 		int z = placementLocation.getBlock().getLocation().getBlockZ();
 
 		parent.getServer().broadcastMessage("Plot construction started at " + x + " " + y + " " + z);
 
-		Plot plot = new Plot(new Location(placementLocation.getWorld(), x, y, z), plotSchem);
+		Plot plot = new Plot(new Location(placementLocation.getWorld(), x, y, z), clipboards, parent);
 
 		if(parent.addPlot(plot)){
 
 
 			try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(placementLocation.getWorld()))) {
-				Operation operation = new ClipboardHolder(plotSchem)
+				Operation operation = new ClipboardHolder(clipboards[0])
 						.createPaste(editSession)
 						.to(BlockVector3.at(x, y, z))
+						.ignoreAirBlocks(true)
 						.build();
 				Operations.complete(operation);
 			} catch (WorldEditException err) {

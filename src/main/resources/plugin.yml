@@ -9,4 +9,28 @@ commands:
   trail:
     description: This Command is used to use the trail feature
   plot:
-    description: This command is used to interact with the plot system
+    description: This command is used to create a plot or, if standing inside a plot area, open the plots GUI
+  tnt:
+    description: This command is used to disable/enable tnt damage on a plot
+  protect:
+    description: This command is used to disable/enable cannon protection on a plot
+  sl:
+    description: This command is used to disable/enable stopLag on a plot
+  ground:
+    description: Pastes baseplate
+  tb1:
+    description: Pastes Tier I testblock
+  tb2:
+    description: Pastes Tier II testblock
+  tb3:
+    description: Pastes Tier III testblock
+  frm1:
+    description: Pastes Tier I frame
+  frm2:
+    description: Pastes Tier II frame
+  frm3:
+    description: Pastes Tier III frame
+  tbm:
+    description: Pastes MiniWarGear testblock
+  frmm:
+    description: Pastes MiniWarGear frame
