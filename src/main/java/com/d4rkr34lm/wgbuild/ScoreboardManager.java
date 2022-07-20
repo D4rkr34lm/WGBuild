@@ -1,6 +1,8 @@
-package com.d4rkr34lm.wgbuild.plotSystem;
+package com.d4rkr34lm.wgbuild;
 
 import com.d4rkr34lm.wgbuild.WGBuild;
+import com.d4rkr34lm.wgbuild.plotSystem.Plot;
+import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -32,7 +34,7 @@ public class ScoreboardManager implements Listener {
 
 
     public void updateScoreboard(Player player){
-        for(Plot plot : parent.getPlots()){
+        for(Plot plot : PlotManager.getPlots()){
             if(plot.isInsideArea(player.getLocation())){
                 org.bukkit.scoreboard.ScoreboardManager manager = Bukkit.getScoreboardManager();
                 Scoreboard scoreboard = manager.getNewScoreboard();

@@ -2,6 +2,7 @@ package com.d4rkr34lm.wgbuild.plotSystem.commands;
 
 import com.d4rkr34lm.wgbuild.WGBuild;
 import com.d4rkr34lm.wgbuild.plotSystem.Plot;
+import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,7 +30,7 @@ public class TntCommand implements CommandExecutor, Listener {
         if(sender instanceof Player){
             Player player = (Player) sender;
 
-            for(Plot plot : plugin.getPlots()){
+            for(Plot plot : PlotManager.getPlots()){
                 if(plot.isInsideArea(player.getLocation())){
                     plot.setTntEnabled(!plot.isTntEnabled());
                     if(plot.isTntEnabled()){
@@ -48,7 +49,7 @@ public class TntCommand implements CommandExecutor, Listener {
     @EventHandler
     public void onTntExplosion(EntityExplodeEvent event) {
         if(event.getEntityType() == EntityType.PRIMED_TNT){
-            for(Plot plot : plugin.getPlots()){
+            for(Plot plot : PlotManager.getPlots()){
                 if(plot.isInsideArea(event.getLocation())){
                     if(!plot.isTntEnabled()){
                         event.blockList().clear();

@@ -4,8 +4,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import com.d4rkr34lm.wgbuild.plotSystem.commands.*;
-import com.d4rkr34lm.wgbuild.plotSystem.ScoreboardManager;
 import com.d4rkr34lm.wgbuild.trail.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.FallingBlock;
@@ -21,12 +21,7 @@ import com.d4rkr34lm.wgbuild.plotSystem.Plot;
 
 public class WGBuild extends JavaPlugin {
 
-	/*
-	 * PlotSystem
-	 */
-	private ArrayList<Plot> plots = new ArrayList<Plot>();
 	private ScoreboardManager scoreboardManager = new ScoreboardManager(this);
-    private int plotIdCounter = 1;
 
 	/*
 	 * Trail
@@ -41,7 +36,7 @@ public class WGBuild extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
-		loadPlots();
+		PlotManager.loadPlots();
 
 		new StopLagCommand(this);
 		new TntCommand(this);
@@ -56,7 +51,7 @@ public class WGBuild extends JavaPlugin {
 	@Override
 	public void onDisable(){
 		TrailManager.removeTrail(false);
-    	savePlots();
+    	PlotManager.savePlots();
 	}
 
 	public void registerEventListeners(){
@@ -137,74 +132,6 @@ public class WGBuild extends JavaPlugin {
 	/*
 	 * Plot System
 	 */
-	public void loadPlots(){
-		Clipboard baseplate = null;
-
-		File baseplateSchematic = new File("./plugins/WGBuild/ground.schem");
-
-		ClipboardFormat format = ClipboardFormats.findByFile(baseplateSchematic);
-		ClipboardReader reader;
-		try {
-			reader = format.getReader(new FileInputStream(baseplateSchematic));
-			baseplate = reader.read();
-			reader.close();
-		}
-		catch (IOException err) {
-			err.printStackTrace();
-		}
-
-		File plotsFile = new File("./plugins/WGBuild/plots.dat");
-		try{
-			FileReader fileReader = new FileReader(plotsFile);
-			BufferedReader bufferedReader = new BufferedReader(fileReader);
-
-			String line = bufferedReader.readLine();
-			while (line != null && !line.equals("")){
-				String[] lineParts = line.split(",");
-
-				Location placementLocation = new Location(Bukkit.getWorld("world"), Integer.parseInt(lineParts[0]), Integer.parseInt(lineParts[1]), Integer.parseInt(lineParts[2]));
-				Plot plot = new Plot(placementLocation, baseplate);
-				addPlot(plot);
-
-				line = bufferedReader.readLine();
-			}
-
-			bufferedReader.close();
-		}
-		catch (IOException err){
-			err.printStackTrace();
-		}
-	}
-
-	public void savePlots(){
-		File file = new File("./plugins/WGBuild/plots.dat");
-
-		try{
-			FileWriter fileWriter = new FileWriter(file);
-			BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-
-			for(Plot plot : plots){
-				String line = plot.getPlacementLocation().getBlockX() + "," + plot.getPlacementLocation().getBlockY() + "," + plot.getPlacementLocation().getBlockZ() + "\n";
-
-				bufferedWriter.write(line);
-			}
-
-			bufferedWriter.close();
-		}
-		catch (IOException err){
-			err.printStackTrace();
-		}
-	}
-
-	public void addPlot(Plot newPlot) {
-		plots.add(newPlot);
-		newPlot.setId(plotIdCounter);
-		plotIdCounter++;
-	}
-
-	public ArrayList<Plot> getPlots(){
-		return  plots;
-	}
 
 	public ScoreboardManager getScoreboardManager(){
 		return  scoreboardManager;

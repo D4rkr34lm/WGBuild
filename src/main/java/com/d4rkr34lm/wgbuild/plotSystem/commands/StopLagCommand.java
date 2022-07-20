@@ -2,6 +2,7 @@ package com.d4rkr34lm.wgbuild.plotSystem.commands;
 
 import com.d4rkr34lm.wgbuild.WGBuild;
 import com.d4rkr34lm.wgbuild.plotSystem.Plot;
+import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import com.destroystokyo.paper.event.block.BlockDestroyEvent;
 import com.destroystokyo.paper.event.block.TNTPrimeEvent;
 import org.bukkit.Bukkit;
@@ -32,7 +33,7 @@ public class StopLagCommand implements CommandExecutor, Listener {
         if(sender instanceof Player){
             Player player = (Player) sender;
 
-            for(Plot plot : plugin.getPlots()){
+            for(Plot plot : PlotManager.getPlots()){
                 if(plot.isInsideArea(player.getLocation())){
                     plot.setStopLagEnabled(!plot.isStopLagEnabled());
                     if(plot.isStopLagEnabled()){
@@ -50,7 +51,7 @@ public class StopLagCommand implements CommandExecutor, Listener {
 
     @EventHandler
     public void onBlockDestroy(BlockDestroyEvent event){
-        for(Plot plot : plugin.getPlots()){
+        for(Plot plot : PlotManager.getPlots()){
             if(plot.isInsideArea(event.getBlock().getLocation())){
                 if(plot.isStopLagEnabled()){
                     event.setCancelled(true);
@@ -62,7 +63,7 @@ public class StopLagCommand implements CommandExecutor, Listener {
 
     @EventHandler
     public void onRedstoneUpdate(BlockRedstoneEvent event){
-        for(Plot plot : plugin.getPlots()){
+        for(Plot plot : PlotManager.getPlots()){
             if(plot.isInsideArea(event.getBlock().getLocation())){
                 if(plot.isStopLagEnabled()){
                     event.setNewCurrent(event.getOldCurrent());
@@ -74,7 +75,7 @@ public class StopLagCommand implements CommandExecutor, Listener {
 
     @EventHandler
     public void onEntityChangeBlock(EntityChangeBlockEvent event){
-        for(Plot plot : plugin.getPlots()){
+        for(Plot plot : PlotManager.getPlots()){
             if(plot.isInsideArea(event.getBlock().getLocation())){
                 if(plot.isStopLagEnabled()){
                     event.setCancelled(true);
@@ -86,7 +87,7 @@ public class StopLagCommand implements CommandExecutor, Listener {
 
     @EventHandler
     public void onTntPrime(TNTPrimeEvent event){
-        for(Plot plot : plugin.getPlots()){
+        for(Plot plot : PlotManager.getPlots()){
             if(plot.isInsideArea(event.getBlock().getLocation())){
                 if(plot.isStopLagEnabled()){
                     event.setCancelled(true);
@@ -98,7 +99,7 @@ public class StopLagCommand implements CommandExecutor, Listener {
 
     @EventHandler
     public void onPistonExtend(BlockPistonExtendEvent event){
-        for(Plot plot : plugin.getPlots()){
+        for(Plot plot : PlotManager.getPlots()){
             if(plot.isInsideArea(event.getBlock().getLocation())){
                 if(plot.isStopLagEnabled()){
                     event.setCancelled(true);
@@ -110,7 +111,7 @@ public class StopLagCommand implements CommandExecutor, Listener {
 
     @EventHandler
     public void onPistonRetract(BlockPistonRetractEvent event){
-        for(Plot plot : plugin.getPlots()){
+        for(Plot plot : PlotManager.getPlots()){
             if(plot.isInsideArea(event.getBlock().getLocation())){
                 if(plot.isStopLagEnabled()){
                     event.setCancelled(true);

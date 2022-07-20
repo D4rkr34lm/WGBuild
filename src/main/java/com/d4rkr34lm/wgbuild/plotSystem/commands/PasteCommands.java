@@ -2,6 +2,7 @@ package com.d4rkr34lm.wgbuild.plotSystem.commands;
 
 import com.d4rkr34lm.wgbuild.WGBuild;
 import com.d4rkr34lm.wgbuild.plotSystem.Plot;
+import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
@@ -57,7 +58,7 @@ public class PasteCommands implements CommandExecutor {
         if(sender instanceof Player){
             Player player = (Player) sender;
 
-            for(Plot plot : plugin.getPlots()){
+            for(Plot plot : PlotManager.getPlots()){
                 if(plot.isInsideArea(player.getLocation())){
                     plot.pasteClipboard(clipboards[Arrays.asList(pasteCommands).indexOf(command.getName())]);
                 }

@@ -2,6 +2,7 @@ package com.d4rkr34lm.wgbuild.plotSystem.commands;
 
 import com.d4rkr34lm.wgbuild.WGBuild;
 import com.d4rkr34lm.wgbuild.plotSystem.Plot;
+import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -29,9 +30,9 @@ public class CannonProtectionCommand implements CommandExecutor, Listener {
         if(sender instanceof Player){
             Player player = (Player) sender;
 
-            for(Plot plot : plugin.getPlots()){
+            for(Plot plot : PlotManager.getPlots()){
                 if(plot.isInsideArea(player.getLocation())){
-                    plot.setCannonProtectionEnabled(plot.isCannonProtectionEnabled());
+                    plot.setCannonProtectionEnabled(!plot.isCannonProtectionEnabled());
                     if(plot.isTntEnabled()){
                         plugin.getServer().broadcastMessage("Cannon protection has been enabled");
                     }
@@ -48,7 +49,7 @@ public class CannonProtectionCommand implements CommandExecutor, Listener {
     @EventHandler
     public void onTntExplosion(EntityExplodeEvent event){
         if(event.getEntityType() == EntityType.PRIMED_TNT){
-            for(Plot plot : plugin.getPlots()){
+            for(Plot plot : PlotManager.getPlots()){
                 if(plot.isInProtectedArea(event.getLocation()) && plot.isCannonProtectionEnabled()){
                     event.blockList().clear();
 
