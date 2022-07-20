@@ -3,9 +3,6 @@ package com.d4rkr34lm.wgbuild;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
-
 
 import com.d4rkr34lm.wgbuild.plotSystem.commands.*;
 import com.d4rkr34lm.wgbuild.plotSystem.ScoreboardManager;
@@ -21,7 +18,6 @@ import org.bukkit.Location;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.d4rkr34lm.wgbuild.plotSystem.Plot;
-import com.d4rkr34lm.wgbuild.plotSystem.PlotConstructor;
 
 public class WGBuild extends JavaPlugin {
 
@@ -46,6 +42,13 @@ public class WGBuild extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		loadPlots();
+
+		new StopLagCommand(this);
+		new TntCommand(this);
+		new CannonProtectionCommand(this);
+		new PlotCommand(this);
+		new PasteCommands(this);
+
 		registerEventListeners();
 		registerCommandListeners();
 	}
@@ -59,11 +62,6 @@ public class WGBuild extends JavaPlugin {
 	public void registerEventListeners(){
 
 		PluginManager pm = Bukkit.getPluginManager();
-
-		pm.registerEvents(new PlotConstructor(this), this);
-		for(Plot plot : plots){
-			pm.registerEvents(plot, this);
-		}
 		pm.registerEvents(scoreboardManager, this);
 
 		pm.registerEvents(new TntPrimeListener(this), this);
@@ -74,19 +72,6 @@ public class WGBuild extends JavaPlugin {
 
 	public void registerCommandListeners(){
 		getCommand("trail").setExecutor(new TrailCommand());
-    	getCommand("plot").setExecutor(new PlotCommand(this));
-		getCommand("sl").setExecutor(new StopLagCommand(this));
-		getCommand("tnt").setExecutor(new TntCommand(this));
-		getCommand("protect").setExecutor(new CannonProtectionCommand(this));
-		getCommand("ground").setExecutor(new PasteCommands(this));
-		getCommand("tb1").setExecutor(new PasteCommands(this));
-		getCommand("tb2").setExecutor(new PasteCommands(this));
-		getCommand("tb3").setExecutor(new PasteCommands(this));
-		getCommand("frm1").setExecutor(new PasteCommands(this));
-		getCommand("frm2").setExecutor(new PasteCommands(this));
-		getCommand("frm3").setExecutor(new PasteCommands(this));
-		getCommand("tbm").setExecutor(new PasteCommands(this));
-		getCommand("frmm").setExecutor(new PasteCommands(this));
 	}
 
 	/*
@@ -153,35 +138,20 @@ public class WGBuild extends JavaPlugin {
 	 * Plot System
 	 */
 	public void loadPlots(){
-		Clipboard[] clipboards = new Clipboard[9];
+		Clipboard baseplate = null;
 
-		ArrayList<File> schematics = new ArrayList<File>();
+		File baseplateSchematic = new File("./plugins/WGBuild/ground.schem");
 
-		schematics.add(new File("./plugins/WGBuild/baseplate.schem"));
-		schematics.add(new File("./plugins/WGBuild/tb1.schem"));
-		schematics.add(new File("./plugins/WGBuild/tb2.schem"));
-		schematics.add(new File("./plugins/WGBuild/tb3.schem"));
-		schematics.add(new File("./plugins/WGBuild/frm1.schem"));
-		schematics.add(new File("./plugins/WGBuild/frm2.schem"));
-		schematics.add(new File("./plugins/WGBuild/frm3.schem"));
-		schematics.add(new File("./plugins/WGBuild/tbm.schem"));
-		schematics.add(new File("./plugins/WGBuild/frmm.schem"));
-
-
-		for(int i = 0; i < 9; i++){
-			File file = schematics.get(i);
-			ClipboardFormat format = ClipboardFormats.findByFile(file);
-			ClipboardReader reader;
-			try {
-				reader = format.getReader(new FileInputStream(file));
-				clipboards[i] = reader.read();
-				reader.close();
-			}
-			catch (IOException err) {
-				err.printStackTrace();
-			}
+		ClipboardFormat format = ClipboardFormats.findByFile(baseplateSchematic);
+		ClipboardReader reader;
+		try {
+			reader = format.getReader(new FileInputStream(baseplateSchematic));
+			baseplate = reader.read();
+			reader.close();
 		}
-
+		catch (IOException err) {
+			err.printStackTrace();
+		}
 
 		File plotsFile = new File("./plugins/WGBuild/plots.dat");
 		try{
@@ -193,7 +163,7 @@ public class WGBuild extends JavaPlugin {
 				String[] lineParts = line.split(",");
 
 				Location placementLocation = new Location(Bukkit.getWorld("world"), Integer.parseInt(lineParts[0]), Integer.parseInt(lineParts[1]), Integer.parseInt(lineParts[2]));
-				Plot plot = new Plot(placementLocation, clipboards, this);
+				Plot plot = new Plot(placementLocation, baseplate);
 				addPlot(plot);
 
 				line = bufferedReader.readLine();
@@ -226,18 +196,10 @@ public class WGBuild extends JavaPlugin {
 		}
 	}
 
-	public boolean addPlot(Plot newPlot) {
-		for(Plot plot : plots){
-			if(newPlot.isColliding(plot)){
-				return  false;
-			}
-		}
-
+	public void addPlot(Plot newPlot) {
 		plots.add(newPlot);
-		Bukkit.getPluginManager().registerEvents(newPlot, this);
 		newPlot.setId(plotIdCounter);
 		plotIdCounter++;
-		return true;
 	}
 
 	public ArrayList<Plot> getPlots(){

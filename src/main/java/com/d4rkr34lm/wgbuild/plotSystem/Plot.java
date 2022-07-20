@@ -23,8 +23,6 @@ public class Plot implements Listener {
 	/*
 	 * Data
 	 */
-	private WGBuild parent;
-	private Clipboard[] clipboards;
 	private Location placementLocation;
 	private Location corner;
 	private BlockVector3 size;
@@ -37,17 +35,12 @@ public class Plot implements Listener {
 	private boolean cannonProtectionEnabled = true;
 	private boolean stopLagEnabled = false;
 
-	/*
-	 * Construction
-	 */
-	public Plot(Location placementLocation, Clipboard[] clipboards, WGBuild parent) {
+	public Plot(Location placementLocation, Clipboard baseplate) {
 		this.placementLocation = placementLocation;
-		this.parent = parent;
-		this.clipboards = clipboards;
-		size = clipboards[0].getDimensions();
+		size = baseplate.getDimensions();
 
-		int xOffset = Math.abs(clipboards[0].getOrigin().getBlockX() - clipboards[0].getMinimumPoint().getBlockX());
-		int zOffset = Math.abs(clipboards[0].getOrigin().getBlockZ() - clipboards[0].getMinimumPoint().getBlockZ());
+		int xOffset = Math.abs(baseplate.getOrigin().getBlockX() - baseplate.getMinimumPoint().getBlockX());
+		int zOffset = Math.abs(baseplate.getOrigin().getBlockZ() - baseplate.getMinimumPoint().getBlockZ());
 		corner = new Location(placementLocation.getWorld(), placementLocation.getBlockX() - xOffset, placementLocation.getBlockY(), placementLocation.getBlockZ() - zOffset);
 	}
 
@@ -58,12 +51,9 @@ public class Plot implements Listener {
 				corner.getBlockZ() + size.getBlockZ() > plot.getCorner().getBlockZ();
 	}
 
-	/*
-	 * Schematic pasting
-	 */
-	public void pasteSchematic(int index){
+	public void pasteClipboard(Clipboard clipboard){
 		try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(placementLocation.getWorld()))) {
-			Operation operation = new ClipboardHolder(clipboards[index])
+			Operation operation = new ClipboardHolder(clipboard)
 					.createPaste(editSession)
 					.to(BlockVector3.at(placementLocation.getBlockX(), placementLocation.getBlockY(), placementLocation.getBlockZ()))
 					.ignoreAirBlocks(true)
@@ -71,48 +61,6 @@ public class Plot implements Listener {
 			Operations.complete(operation);
 		} catch (WorldEditException err) {
 			err.printStackTrace();
-		}
-	}
-
-	/*
-	 * Tnt settings and cannon protection
-	 */
-	@EventHandler
-	public void onTntExplosion(EntityExplodeEvent e) {
-		if(e.getEntityType() == EntityType.PRIMED_TNT){
-			if(isInsideArea(e.getLocation())){
-				if(!tntEnabled){
-					e.blockList().clear();
-				}
-				else if(isInProtectedArea(e.getLocation()) && cannonProtectionEnabled){
-					e.blockList().clear();
-
-					if(!e.getEntity().isInWater()){
-						parent.getServer().broadcastMessage("Unwanted explosion has been blocked");
-					}
-				}
-			}
-		}
-	}
-
-	/*
-	 * StopLag
-	 */
-	@EventHandler
-	public void onBlockUpdate(BlockPhysicsEvent e){
-		if(isInsideArea(e.getBlock().getLocation())){
-			if(stopLagEnabled){
-				e.setCancelled(true);
-			}
-		}
-	}
-
-	@EventHandler
-	public void onRedstoneUpdate(BlockRedstoneEvent e){
-		if(isInsideArea(e.getBlock().getLocation())){
-			if(stopLagEnabled){
-				e.setNewCurrent(e.getOldCurrent());
-			}
 		}
 	}
 
