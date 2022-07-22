@@ -6,6 +6,8 @@ import java.util.HashMap;
 
 import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import com.d4rkr34lm.wgbuild.plotSystem.commands.*;
+import com.d4rkr34lm.wgbuild.simulator.SimulationManager;
+import com.d4rkr34lm.wgbuild.simulator.SimulatorGuiManager;
 import com.d4rkr34lm.wgbuild.trail.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.FallingBlock;
@@ -43,6 +45,9 @@ public class WGBuild extends JavaPlugin {
 		new CannonProtectionCommand(this);
 		new PlotCommand(this);
 		new PasteCommands(this);
+
+		new SimulationManager(this);
+		new SimulatorGuiManager(this);
 
 		registerEventListeners();
 		registerCommandListeners();
