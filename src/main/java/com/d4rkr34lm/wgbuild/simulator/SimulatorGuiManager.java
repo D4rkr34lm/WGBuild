@@ -29,6 +29,10 @@ public class SimulatorGuiManager implements Listener {
 
     private final Material ENABLED_SIMULATOR_MATERIAL = Material.LIGHT_BLUE_SHULKER_BOX;
     private final Material DISABLE_SIMULATOR_MATERIAL = Material.PURPLE_SHULKER_BOX;
+
+    /*
+     * Sim gui Items
+     */
     private ItemStack increaseTntItem;
     private ItemStack decreaseTntItem;
     private ItemStack increaseTickItem;
@@ -37,6 +41,14 @@ public class SimulatorGuiManager implements Listener {
     private ItemStack nextPageItem;
     private ItemStack newPhaseItem;
     private ItemStack settingsItem;
+
+    /*
+     * Settings gui Items
+     */
+    private ItemStack increaseOffsetItem;
+    private ItemStack decreaseOffsetItem;
+    private ItemStack setPriorityItem;
+
     private ItemStack inventoryClosedByCodeMarker;
 
     private HashMap<Player, Simulator> openedSimulators = new HashMap<>();
@@ -113,12 +125,12 @@ public class SimulatorGuiManager implements Listener {
 
     @EventHandler
     public void onInventoryInteract(InventoryClickEvent event){
-        if(event.getView().getTitle().contains("Simulator")){
+        if(event.getView().getTitle().contains("Sim")){
            if(event.getAction() == InventoryAction.PICKUP_ALL || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY){
                Player player = (Player) event.getWhoClicked();
                Simulator simulator = openedSimulators.get(player);
                String[] splitTitle = event.getView().getTitle().split(" Tnt:");
-               String pageString = splitTitle[0].replace("Simulator Page ", "");
+               String pageString = splitTitle[0].replace("Sim Page ", "");
                int page = Integer.parseInt(pageString);
                page--;
 
@@ -155,7 +167,9 @@ public class SimulatorGuiManager implements Listener {
                        phase.setTnt(phase.getTnt() + changeStrenght);
                    }
                    else {
-                       phase.setTnt(phase.getTnt() - changeStrenght);
+                       if(phase.getTnt() - changeStrenght > 0){
+                           phase.setTnt(phase.getTnt() - changeStrenght);
+                       }
                    }
                }
                else if(itemName.equals("+ 1 Tick") || itemName.equals("- 1 Tick")){
@@ -163,11 +177,33 @@ public class SimulatorGuiManager implements Listener {
                    simulator.removePhase(phase);
                    if(itemName.equals("+ 1 Tick")){
                         phase.setTick(phase.getTick() + changeStrenght);
+                        while (simulator.hasPhase(phase.getTick())){
+                            phase.setTick(phase.getTick() + 1);
+                        }
                    }
                    else {
-                       phase.setTick(phase.getTick() - changeStrenght);
+                       int count = 1;
+                       int lastViableTick = phase.getTick();
+                       int currentTick = phase.getTick();
+                       while (currentTick > 1){
+                           currentTick--;
+                           if(!simulator.hasPhase(currentTick)){
+                               lastViableTick = currentTick;
+                           }
+
+                           if(count >= changeStrenght && lastViableTick != phase.getTick()){
+                               break;
+                           }
+                           count++;
+                       }
+                       phase.setTick(lastViableTick);
+                       simulator.addPhase(phase);
                    }
                    simulator.addPhase(phase);
+               }
+               else if(event.getCurrentItem().getType() == Material.PAPER){
+                   Phase phase = simulator.getPhases().get(row + page * 8);
+                   simulator.removePhase(phase);
                }
 
 
@@ -184,7 +220,7 @@ public class SimulatorGuiManager implements Listener {
 
     @EventHandler
     public void onInventoryClose(InventoryCloseEvent event){
-        if(event.getView().getTitle().contains("Simulator")){
+        if(event.getView().getTitle().contains("Sim")){
             if(!event.getInventory().contains(inventoryClosedByCodeMarker)){
                 Simulator simulator = openedSimulators.get(event.getPlayer());
 
@@ -227,7 +263,7 @@ public class SimulatorGuiManager implements Listener {
     }
 
     public void showGui(Player player, Simulator simulator, int page){
-        Inventory inventory = Bukkit.createInventory(null, 6 * 9, "Simulator Page " + (page + 1) + " Tnt: " + simulator.getTotalTntCount() + " Priority: " + simulator.getPriority());
+        Inventory inventory = Bukkit.createInventory(null, 6 * 9, "Sim Page " + (page + 1) + " Tnt: " + simulator.getTotalTntCount() + " Priority: " + simulator.getPriority());
 
         ArrayList<Phase> phases = simulator.getPhases();
 
@@ -268,5 +304,11 @@ public class SimulatorGuiManager implements Listener {
         }
 
         player.openInventory(inventory);
+    }
+
+    public void showSettings(Player player, Simulator simulator, int page){
+        Inventory inventory = Bukkit.createInventory(null, 3 * 9, "Sim settings");
+
+
     }
 }

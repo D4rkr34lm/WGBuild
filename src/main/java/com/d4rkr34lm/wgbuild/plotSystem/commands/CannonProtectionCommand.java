@@ -33,7 +33,7 @@ public class CannonProtectionCommand implements CommandExecutor, Listener {
             for(Plot plot : PlotManager.getPlots()){
                 if(plot.isInsideArea(player.getLocation())){
                     plot.setCannonProtectionEnabled(!plot.isCannonProtectionEnabled());
-                    if(plot.isTntEnabled()){
+                    if(plot.isCannonProtectionEnabled()){
                         plugin.getServer().broadcastMessage("Cannon protection has been enabled");
                     }
                     else {

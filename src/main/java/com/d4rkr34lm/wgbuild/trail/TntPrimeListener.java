@@ -11,6 +11,7 @@ import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.CreatureSpawnEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.checkerframework.checker.units.qual.A;
@@ -36,9 +37,9 @@ public class TntPrimeListener implements Listener {
     }
 
     @EventHandler
-    public void onTntPrime(TNTPrimeEvent e){
+    public void onTntPrime(EntitySpawnEvent e){
 
-        if(!WGBuild.isWaitingToStartRecording() || WGBuild.isRecordingTrail()){
+        if(!WGBuild.isWaitingToStartRecording() || WGBuild.isRecordingTrail() || e.getEntity().getType() != EntityType.PRIMED_TNT){
             return;
         }
 
