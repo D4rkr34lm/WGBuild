@@ -4,16 +4,20 @@ import com.d4rkr34lm.wgbuild.WGBuild;
 import com.destroystokyo.paper.profile.PlayerProfile;
 import com.destroystokyo.paper.profile.ProfileProperty;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryAction;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.AnvilInventory;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -41,20 +45,17 @@ public class SimulatorGuiManager implements Listener {
     private ItemStack nextPageItem;
     private ItemStack newPhaseItem;
     private ItemStack settingsItem;
-
-    /*
-     * Settings gui Items
-     */
-    private ItemStack increaseOffsetItem;
-    private ItemStack decreaseOffsetItem;
-    private ItemStack setPriorityItem;
-
     private ItemStack inventoryClosedByCodeMarker;
-
+    private int taskID = 0;
     private HashMap<Player, Simulator> openedSimulators = new HashMap<>();
 
     public  SimulatorGuiManager(WGBuild plugin){
         Bukkit.getPluginManager().registerEvents(this, plugin);
+        this.plugin = plugin;
+
+        /*
+         * Sim Gui Items
+         */
 
         increaseTntItem = getScull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmNjYmY5ODgzZGQzNTlmZGYyMzg1YzkwYTQ1OWQ3Mzc3NjUzODJlYzQxMTdiMDQ4OTVhYzRkYzRiNjBmYyJ9fX0=");
         ItemMeta increaseTntItemMeta = increaseTntItem.getItemMeta();
@@ -114,7 +115,7 @@ public class SimulatorGuiManager implements Listener {
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event){
         if(event.getItem() == null || event.getItem().getType() != Material.CLOCK){
-            if(event.getAction().isRightClick()){
+            if(event.getAction().isRightClick() && event.getClickedBlock() != null){
                 if(event.getClickedBlock().getType() == ENABLED_SIMULATOR_MATERIAL || event.getClickedBlock().getType() == DISABLE_SIMULATOR_MATERIAL){
                     openSimulator(event.getClickedBlock(), event.getPlayer());
                     event.setCancelled(true);
@@ -124,8 +125,8 @@ public class SimulatorGuiManager implements Listener {
     }
 
     @EventHandler
-    public void onInventoryInteract(InventoryClickEvent event){
-        if(event.getView().getTitle().contains("Sim")){
+    public void onSimGuiClick(InventoryClickEvent event){
+        if(event.getView().getTitle().contains("Sim Page ")){
            if(event.getAction() == InventoryAction.PICKUP_ALL || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY){
                Player player = (Player) event.getWhoClicked();
                Simulator simulator = openedSimulators.get(player);
@@ -134,7 +135,7 @@ public class SimulatorGuiManager implements Listener {
                int page = Integer.parseInt(pageString);
                page--;
 
-               int row = event.getSlot() % 9;
+               int column = event.getSlot() % 9;
 
                int changeStrenght = 1;
                if(event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY){
@@ -142,6 +143,8 @@ public class SimulatorGuiManager implements Listener {
                }
 
                String itemName = event.getInventory().getItem(event.getSlot()).getItemMeta().getDisplayName();
+
+               boolean changedInventory = false;
 
                if(itemName.equals("Next page")){
                    page++;
@@ -162,7 +165,7 @@ public class SimulatorGuiManager implements Listener {
                    simulator.addPhase(newPhase);
                }
                else if(itemName.equals("+ 1 Tnt") || itemName.equals("- 1 Tnt")){
-                   Phase phase = simulator.getPhases().get(row + page * 8);
+                   Phase phase = simulator.getPhases().get(column + page * 8);
                    if(itemName.equals("+ 1 Tnt")){
                        phase.setTnt(phase.getTnt() + changeStrenght);
                    }
@@ -173,7 +176,7 @@ public class SimulatorGuiManager implements Listener {
                    }
                }
                else if(itemName.equals("+ 1 Tick") || itemName.equals("- 1 Tick")){
-                   Phase phase = simulator.getPhases().get(row + page * 8);
+                   Phase phase = simulator.getPhases().get(column + page * 8);
                    simulator.removePhase(phase);
                    if(itemName.equals("+ 1 Tick")){
                         phase.setTick(phase.getTick() + changeStrenght);
@@ -202,15 +205,20 @@ public class SimulatorGuiManager implements Listener {
                    simulator.addPhase(phase);
                }
                else if(event.getCurrentItem().getType() == Material.PAPER){
-                   Phase phase = simulator.getPhases().get(row + page * 8);
+                   Phase phase = simulator.getPhases().get(column + page * 8);
                    simulator.removePhase(phase);
                }
+               else if(event.getCurrentItem().getType() == Material.ANVIL){
+                   event.getInventory().addItem(inventoryClosedByCodeMarker);
+                   showSettings(player, simulator);
+                   changedInventory = true;
+               }
 
-
-
-               event.getInventory().addItem(inventoryClosedByCodeMarker);
-               showGui(player, simulator,  page);
-               event.setCancelled(true);
+                if(!changedInventory){
+                    event.getInventory().addItem(inventoryClosedByCodeMarker);
+                    showGui(player, simulator, page);
+                    event.setCancelled(true);
+                }
            }
            else {
                event.setCancelled(true);
@@ -219,9 +227,75 @@ public class SimulatorGuiManager implements Listener {
     }
 
     @EventHandler
+    public void onSettingsGuiClick(InventoryClickEvent event){
+        if(event.getView().getTitle().equals("Sim settings")) {
+            if (event.getAction() == InventoryAction.PICKUP_ALL || event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY) {
+                Player player = (Player) event.getWhoClicked();
+                Simulator simulator = openedSimulators.get(player);
+
+                int column = event.getSlot() % 9;
+
+                double changeStrenght = 1.0;
+                if(event.getAction() == InventoryAction.MOVE_TO_OTHER_INVENTORY){
+                    changeStrenght = 5.0;
+                }
+
+                String itemName = event.getInventory().getItem(event.getSlot()).getItemMeta().getDisplayName();
+                boolean changedInventory = false;
+
+                if(itemName.contains("-Offset Settings")){
+
+                }
+                else if(itemName.contains("+") && itemName.contains("Pixel")){
+                    simulator.setOffset(column, simulator.getOffset(column) + changeStrenght * 0.0625);
+                }
+                else if(itemName.contains("-") && itemName.contains("Pixel")){
+                    simulator.setOffset(column, simulator.getOffset(column) - changeStrenght * 0.0625);
+                }
+                else if(itemName.equals("+ 1 Priority")){
+                    simulator.setPriority(simulator.getPriority() + 1);
+                }
+                else if (itemName.equals("- 1 Priority")) {
+                    simulator.setPriority(simulator.getPriority() - 1);
+                } else if(event.getCurrentItem().getType() == Material.REPEATER){
+
+                } else if (event.getCurrentItem().getType() == Material.BARRIER) {
+                    simulator.setOffset(0, 0.0);
+                    simulator.setOffset(1, 0.0);
+                    simulator.setOffset(2, 0.0);
+                    simulator.setPriority(1);
+                }
+
+                if(!changedInventory){
+                    event.getInventory().addItem(inventoryClosedByCodeMarker);
+                    showSettings(player, simulator);
+                    event.setCancelled(true);
+                }
+            }
+            else {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
     public void onInventoryClose(InventoryCloseEvent event){
-        if(event.getView().getTitle().contains("Sim")){
+        if(event.getView().getTitle().equals("Sim settings")){
             if(!event.getInventory().contains(inventoryClosedByCodeMarker)){
+                Simulator simulator = openedSimulators.get(event.getPlayer());
+                Player player = (Player) event.getPlayer();
+                 taskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+                    @Override
+                    public void run() {
+                        showGui(player, simulator, 0);
+                        Bukkit.getScheduler().cancelTask(taskID);
+                    }
+                }, 1, 1);
+            }
+        }
+        else if(event.getView().getTitle().contains("Sim Page ")){
+            if(!event.getInventory().contains(inventoryClosedByCodeMarker)){
+
                 Simulator simulator = openedSimulators.get(event.getPlayer());
 
                 Block block = simulator.getBlock();
@@ -306,9 +380,89 @@ public class SimulatorGuiManager implements Listener {
         player.openInventory(inventory);
     }
 
-    public void showSettings(Player player, Simulator simulator, int page){
+    public void showSettings(Player player, Simulator simulator){
+        String[] offsetScullValues = {
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzM4YWIxNDU3NDdiNGJkMDljZTAzNTQzNTQ5NDhjZTY5ZmY2ZjQxZDllMDk4YzY4NDhiODBlMTg3ZTkxOSJ9fX0=",
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYTcxMDcxYmVmNzMzZjQ3NzAyMWIzMjkxZGMzZDQ3ZjBiZGYwYmUyZGExYjE2NWExMTlhOGZmMTU5NDU2NyJ9fX0=",
+                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYzk5MmM3NTNiZjljNjI1ODUzY2UyYTBiN2IxNzRiODlhNmVjMjZiYjVjM2NjYjQ3M2I2YTIwMTI0OTYzMTIifX19"
+        };
+
+        String[] axisChar = {
+                "x", "y", "z"
+        };
+
+        ItemStack[] increaseOffsetItems = new ItemStack[3];
+        ItemStack[] decreaseOffsetItems = new ItemStack[3];
+        ItemStack[] offsetItems = new ItemStack[3];
+
+        for(int i = 0; i < 3; i++){
+            double offset = simulator.getOffsets()[i];
+            double offsetInPixels = Math.round(((offset / 0.0625) * 100.0 ) / 100.0);
+            String offsetDisplay = "Current " + axisChar[i] + "-offset: " + offset + " " + ChatColor.ITALIC + offsetInPixels + " Pixel";
+
+            increaseOffsetItems[i] = getScull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmNjYmY5ODgzZGQzNTlmZGYyMzg1YzkwYTQ1OWQ3Mzc3NjUzODJlYzQxMTdiMDQ4OTVhYzRkYzRiNjBmYyJ9fX0=");
+            ItemMeta increaseOffsetItemMeta = increaseOffsetItems[i].getItemMeta();
+            increaseOffsetItemMeta.setDisplayName("+ 1 Pixel");
+            List<String> increaseOffsetItemLore = new ArrayList<String>();
+            increaseOffsetItemLore.add(offsetDisplay);
+            increaseOffsetItemLore.add(" ");
+            increaseOffsetItemLore.add("Shift Click for + 5 Pixel");
+            increaseOffsetItemMeta.setLore(increaseOffsetItemLore);
+            increaseOffsetItems[i].setItemMeta(increaseOffsetItemMeta);
+
+            decreaseOffsetItems[i] = getScull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzI0MzE5MTFmNDE3OGI0ZDJiNDEzYWE3ZjVjNzhhZTQ0NDdmZTkyNDY5NDNjMzFkZjMxMTYzYzBlMDQzZTBkNiJ9fX0=");
+            ItemMeta decreaseOffsetItemMeta = decreaseOffsetItems[i].getItemMeta();
+            decreaseOffsetItemMeta.setDisplayName("- 1 Pixel");
+            List<String> decreaseOffsetItemLore = new ArrayList<>();
+            decreaseOffsetItemLore.add(offsetDisplay);
+            decreaseOffsetItemLore.add(" ");
+            decreaseOffsetItemLore.add("Shift Click for - 5 Pixel");
+            decreaseOffsetItemMeta.setLore(decreaseOffsetItemLore);
+            decreaseOffsetItems[i].setItemMeta(decreaseOffsetItemMeta);
+
+            offsetItems[i] = getScull(offsetScullValues[i]);
+            ItemMeta offsetItemMeta = offsetItems[i].getItemMeta();
+            offsetItemMeta.setDisplayName(axisChar[i] + "-Offset Settings");
+            List<String> offsetItemLore = new ArrayList<>();
+            offsetItemLore.add(offsetDisplay);
+            offsetItemMeta.setLore(offsetItemLore);
+            offsetItems[i].setItemMeta(offsetItemMeta);
+        }
+        ItemStack increasePriorityItem = getScull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNmNjYmY5ODgzZGQzNTlmZGYyMzg1YzkwYTQ1OWQ3Mzc3NjUzODJlYzQxMTdiMDQ4OTVhYzRkYzRiNjBmYyJ9fX0=");
+        ItemMeta increasePriorityItemMeta = increasePriorityItem.getItemMeta();
+        increasePriorityItemMeta.setDisplayName("+ 1 Priority");
+        increasePriorityItem.setItemMeta(increasePriorityItemMeta);
+
+        ItemStack priorityItem = new ItemStack(Material.REPEATER, simulator.getPriority());
+        ItemMeta priorityItemMeta = priorityItem.getItemMeta();
+        priorityItemMeta.setDisplayName("Priority: " + simulator.getPriority());
+        priorityItem.setItemMeta(priorityItemMeta);
+
+        ItemStack decreasePriorityItem = getScull("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzI0MzE5MTFmNDE3OGI0ZDJiNDEzYWE3ZjVjNzhhZTQ0NDdmZTkyNDY5NDNjMzFkZjMxMTYzYzBlMDQzZTBkNiJ9fX0=");
+        ItemMeta decreasePriorityItemMeta = decreasePriorityItem.getItemMeta();
+        decreasePriorityItemMeta.setDisplayName("- 1 Priority");
+        decreasePriorityItem.setItemMeta(decreasePriorityItemMeta);
+
+
+        ItemStack resetItem = new ItemStack(Material.BARRIER);
+        ItemMeta resetItemMeta = resetItem.getItemMeta();
+        resetItemMeta.setDisplayName("Reset settings");
+        resetItem.setItemMeta(resetItemMeta);
+
         Inventory inventory = Bukkit.createInventory(null, 3 * 9, "Sim settings");
 
+        for(int n = 0; n < 3; n++){
+            inventory.setItem(n, increaseOffsetItems[n]);
+            inventory.setItem(n + 9, offsetItems[n]);
+            inventory.setItem(n + 18, decreaseOffsetItems[n]);
+        }
 
+        inventory.setItem(4, increasePriorityItem);
+        inventory.setItem(13, priorityItem);
+        inventory.setItem(22, decreasePriorityItem);
+
+        inventory.setItem(16, resetItem);
+
+        player.openInventory(inventory);
     }
 }

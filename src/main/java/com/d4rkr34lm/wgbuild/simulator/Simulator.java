@@ -87,8 +87,39 @@ public class Simulator {
         return  priority;
     }
 
+    public void setPriority(int priority) {
+        this.priority = priority;
+    }
+
     public Block getBlock() {
         return block;
+    }
+
+    public double[] getOffsets(){
+        double[] offsets = new double[3];
+        offsets[0] = offsetX;
+        offsets[1] = offsetY;
+        offsets[2] = offsetZ;
+
+        return offsets;
+    }
+
+    public double getOffset(int axis){
+        return getOffsets()[axis];
+    }
+
+    public void setOffset(int axis, double offset){
+        switch (axis){
+            case 0:
+                offsetX = offset;
+                break;
+            case 1:
+                offsetY = offset;
+                break;
+            case 2:
+                offsetZ = offset;
+                break;
+        }
     }
 
     public int getTotalTntCount(){
