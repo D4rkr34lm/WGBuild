@@ -33,8 +33,7 @@ public class SimulationManager implements Listener {
 
     private int currentTick = 1;
     private int lastSimulatedTick = 0;
-    private boolean phaseSimulated = false;
-    private int schedulerID;
+    private int newTaskID;
 
     public SimulationManager(WGBuild plugin){
         this.plugin = plugin;
@@ -127,9 +126,15 @@ public class SimulationManager implements Listener {
             simulator.startSimulation();
         }
 
-        schedulerID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+        newTaskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
+            private boolean phaseSimulated = false;
+            private  int taskID = 0;
             @Override
             public void run() {
+                if(taskID == 0){
+                    taskID = newTaskID;
+                }
+
                 phaseSimulated = false;
                 for(Simulator simulator : simulators){
                     if(simulator.hasPhase(currentTick)){
@@ -143,7 +148,7 @@ public class SimulationManager implements Listener {
                     for(Simulator simulator : simulators){
                         simulator.stopSimulation();
                     }
-                    Bukkit.getScheduler().cancelTask(schedulerID);
+                    Bukkit.getScheduler().cancelTask(taskID);
                 }
 
                 currentTick++;
