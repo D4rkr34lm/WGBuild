@@ -1,6 +1,5 @@
 package com.d4rkr34lm.wgbuild;
 
-import com.d4rkr34lm.wgbuild.WGBuild;
 import com.d4rkr34lm.wgbuild.plotSystem.Plot;
 import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import org.bukkit.Bukkit;
@@ -16,10 +15,11 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 
 public class ScoreboardManager implements Listener {
-    private WGBuild parent;
+    private WGBuild plugin;
 
-    public ScoreboardManager(WGBuild parent){
-        this.parent = parent;
+    public ScoreboardManager(WGBuild plugin){
+        this.plugin = plugin;
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
     @EventHandler
