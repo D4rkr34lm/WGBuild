@@ -24,6 +24,8 @@ commands:
     description: Pastes Tier II testblock
   tb3:
     description: Pastes Tier III testblock
+  tb3s:
+    description: Paste Tier III testblock with shields
   frm1:
     description: Pastes Tier I frame
   frm2:

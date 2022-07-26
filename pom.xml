@@ -6,7 +6,7 @@
 
     <groupId>com.D4rkr34lm</groupId>
     <artifactId>WGBuild</artifactId>
-    <version>0.4.2</version>
+    <version>0.4.3-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>WGBuild</name>

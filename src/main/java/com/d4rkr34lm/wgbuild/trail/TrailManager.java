@@ -82,8 +82,8 @@ public class TrailManager implements Listener {
             message += "               " + "         Z: " + ChatColor.BLUE + trailObject.getVelocity().getZ() + ChatColor.WHITE + "\n";
             message += "               " + "Position: \n";
             message += "               " + "         X: " + ChatColor.BLUE + trailObject.getLocation().getX() + ChatColor.WHITE + "\n";
-            message += "               " + "         Y: " + ChatColor.BLUE + trailObject.getLocation().getY() + ChatColor.WHITE + "\n";
-            message += "               " + "         Z: " + ChatColor.BLUE + trailObject.getLocation().getZ() + ChatColor.WHITE;
+            message += "               " + "         Y: " + ChatColor.BLUE + (trailObject.getLocation().getY() - 0.5) + ChatColor.WHITE + "\n";
+            message += "               " + "         Z: " + ChatColor.BLUE + (trailObject.getLocation().getZ() - 0.5) + ChatColor.WHITE;
             event.getPlayer().sendMessage(message);
         }
     }

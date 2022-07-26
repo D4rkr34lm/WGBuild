@@ -51,12 +51,12 @@ public class Plot implements Listener {
 				corner.getBlockZ() + size.getBlockZ() > plot.getCorner().getBlockZ();
 	}
 
-	public void pasteClipboard(Clipboard clipboard){
+	public void pasteClipboard(Clipboard clipboard, boolean ignoreAir){
 		try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(placementLocation.getWorld()))) {
 			Operation operation = new ClipboardHolder(clipboard)
 					.createPaste(editSession)
 					.to(BlockVector3.at(placementLocation.getBlockX(), placementLocation.getBlockY(), placementLocation.getBlockZ()))
-					.ignoreAirBlocks(true)
+					.ignoreAirBlocks(ignoreAir)
 					.build();
 			Operations.complete(operation);
 		} catch (WorldEditException err) {

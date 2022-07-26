@@ -66,6 +66,6 @@ public class PlotCommand implements CommandExecutor {
         }
 
         PlotManager.addPlot(newPlot);
-        newPlot.pasteClipboard(baseplate);
+        newPlot.pasteClipboard(baseplate, true);
     }
 }
