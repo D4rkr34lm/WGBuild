@@ -39,11 +39,18 @@ public class WGBuild extends JavaPlugin {
 
 		new SimulationManager(this);
 		new SimulatorGuiManager(this);
+
+		new TrailCommand(this);
+		new TrailManager(this);
 	}
 
 	@Override
 	public void onDisable(){
     	PlotManager.savePlots();
+
+		for(Trail trail : TrailManager.getTrails().values()){
+			trail.hide();
+		}
 	}
 
 	public ScoreboardManager getScoreboardManager(){
