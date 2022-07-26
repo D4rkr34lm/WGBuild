@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class StopLagCommand implements CommandExecutor, Listener {
 
+    private static final String CHAT_TAG = "§f[§1WGBuild§f] §8";
     private WGBuild plugin;
 
     public StopLagCommand(WGBuild plugin){
@@ -37,10 +38,10 @@ public class StopLagCommand implements CommandExecutor, Listener {
                 if(plot.isInsideArea(player.getLocation())){
                     plot.setStopLagEnabled(!plot.isStopLagEnabled());
                     if(plot.isStopLagEnabled()){
-                        plugin.getServer().broadcastMessage("StopLag has been enabled");
+                        plugin.getServer().broadcastMessage(CHAT_TAG + "StopLag has been enabled");
                     }
                     else {
-                        plugin.getServer().broadcastMessage("StopLag has been disabled");
+                        plugin.getServer().broadcastMessage(CHAT_TAG + "StopLag has been disabled");
                     }
                     plugin.getScoreboardManager().updateScoreboard(player);
                 }

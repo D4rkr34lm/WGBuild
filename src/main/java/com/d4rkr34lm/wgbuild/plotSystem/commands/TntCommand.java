@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class TntCommand implements CommandExecutor, Listener {
 
+    private static final String CHAT_TAG = "§f[§1WGBuild§f] §8";
     private WGBuild plugin;
 
     public TntCommand(WGBuild plugin){
@@ -34,10 +35,10 @@ public class TntCommand implements CommandExecutor, Listener {
                 if(plot.isInsideArea(player.getLocation())){
                     plot.setTntEnabled(!plot.isTntEnabled());
                     if(plot.isTntEnabled()){
-                        plugin.getServer().broadcastMessage("Tnt has been enabled");
+                        plugin.getServer().broadcastMessage(CHAT_TAG + "TNT has been enabled");
                     }
                     else {
-                        plugin.getServer().broadcastMessage("Tnt has been disabled");
+                        plugin.getServer().broadcastMessage(CHAT_TAG + "TNT has been disabled");
                     }
                     plugin.getScoreboardManager().updateScoreboard(player);
                 }

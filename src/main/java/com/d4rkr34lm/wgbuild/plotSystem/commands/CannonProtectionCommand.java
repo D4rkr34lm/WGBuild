@@ -17,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class CannonProtectionCommand implements CommandExecutor, Listener {
 
+    private static final String PROTECTION_CHAT_TAG = "§f[§1WGBuild§f] §8";
     private WGBuild plugin;
 
     public CannonProtectionCommand(WGBuild plugin){
@@ -34,10 +35,10 @@ public class CannonProtectionCommand implements CommandExecutor, Listener {
                 if(plot.isInsideArea(player.getLocation())){
                     plot.setCannonProtectionEnabled(!plot.isCannonProtectionEnabled());
                     if(plot.isCannonProtectionEnabled()){
-                        plugin.getServer().broadcastMessage("Cannon protection has been enabled");
+                        plugin.getServer().broadcastMessage(PROTECTION_CHAT_TAG + "Cannon protection has been enabled");
                     }
                     else {
-                        plugin.getServer().broadcastMessage("Cannon protection has been disabled");
+                        plugin.getServer().broadcastMessage(PROTECTION_CHAT_TAG + "Cannon protection has been disabled");
                     }
                     plugin.getScoreboardManager().updateScoreboard(player);
                 }
@@ -54,7 +55,7 @@ public class CannonProtectionCommand implements CommandExecutor, Listener {
                     event.blockList().clear();
 
                     if(!event.getEntity().isInWater()){
-                        plugin.getServer().broadcastMessage("Unwanted explosion has been blocked");
+                        plugin.getServer().broadcastMessage(PROTECTION_CHAT_TAG + "Unwanted explosion has been blocked");
                     }
                 }
             }
