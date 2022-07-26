@@ -156,4 +156,20 @@ public class TrailManager implements Listener {
     public static void checkoutTrailObject(TrailObject trailObject){
         currentlyVisibleTrailObjects.remove(trailObject.getVisualiser());
     }
+
+    public static boolean issueRecording(Plot plot, Player player){
+        if(!isRecording(plot)){
+            if(trails.containsKey(player)){
+                trails.get(player).hide();
+            }
+            Trail trail = new Trail(player);
+            trailsWaitingToRecord.put(plot, trail);
+            trails.put(player, trail);
+            player.sendMessage("[" + ChatColor.BLUE  + "WGBuild" + ChatColor.DARK_PURPLE + "/" + ChatColor.BLUE + "Trail" + ChatColor.WHITE + "] Waiting for Tnt in Plot "+ ChatColor.BLUE + plot.getId());
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 }
