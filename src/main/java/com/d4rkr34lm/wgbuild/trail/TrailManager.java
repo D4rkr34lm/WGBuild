@@ -82,8 +82,8 @@ public class TrailManager implements Listener {
             message += "               " + "         Z: " + ChatColor.BLUE + trailObject.getVelocity().getZ() + ChatColor.WHITE + "\n";
             message += "               " + "Position: \n";
             message += "               " + "         X: " + ChatColor.BLUE + trailObject.getLocation().getX() + ChatColor.WHITE + "\n";
-            message += "               " + "         Y: " + ChatColor.BLUE + trailObject.getLocation().getY() + ChatColor.WHITE + "\n";
-            message += "               " + "         Z: " + ChatColor.BLUE + trailObject.getLocation().getZ() + ChatColor.WHITE;
+            message += "               " + "         Y: " + ChatColor.BLUE + (trailObject.getLocation().getY() - 0.5) + ChatColor.WHITE + "\n";
+            message += "               " + "         Z: " + ChatColor.BLUE + (trailObject.getLocation().getZ() - 0.5) + ChatColor.WHITE;
             event.getPlayer().sendMessage(message);
         }
     }
@@ -155,5 +155,21 @@ public class TrailManager implements Listener {
 
     public static void checkoutTrailObject(TrailObject trailObject){
         currentlyVisibleTrailObjects.remove(trailObject.getVisualiser());
+    }
+
+    public static boolean issueRecording(Plot plot, Player player){
+        if(!isRecording(plot)){
+            if(trails.containsKey(player)){
+                trails.get(player).hide();
+            }
+            Trail trail = new Trail(player);
+            trailsWaitingToRecord.put(plot, trail);
+            trails.put(player, trail);
+            player.sendMessage("[" + ChatColor.BLUE  + "WGBuild" + ChatColor.DARK_PURPLE + "/" + ChatColor.BLUE + "Trail" + ChatColor.WHITE + "] Waiting for Tnt in Plot "+ ChatColor.BLUE + plot.getId());
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

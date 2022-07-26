@@ -27,18 +27,7 @@ public class TrailCommand implements CommandExecutor {
             case "new":
                 for(Plot plot : PlotManager.getPlots()){
                     if(plot.isInsideArea(player.getLocation())){
-                        if(!TrailManager.isRecording(plot)){
-                            if(TrailManager.getTrails().containsKey(player)){
-                                TrailManager.getTrails().get(player).hide();
-                            }
-                            Trail trail = new Trail(player);
-                            TrailManager.getTrailsWaitingToRecord().put(plot, trail);
-                            TrailManager.getTrails().put(player, trail);
-                            player.sendMessage("[" + ChatColor.BLUE  + "WGBuild" + ChatColor.DARK_PURPLE + "/" + ChatColor.BLUE + "Trail" + ChatColor.WHITE + "] Waiting for Tnt in Plot "+ ChatColor.BLUE + plot.getId());
-                        }
-                        else {
-                            return false;
-                        }
+                        TrailManager.issueRecording(plot, player);
                     }
                 }
                 break;

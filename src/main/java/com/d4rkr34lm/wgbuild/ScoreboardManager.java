@@ -54,10 +54,10 @@ public class ScoreboardManager implements Listener {
 
                 Score cannonProtection;
                 if(plot.isCannonProtectionEnabled()){
-                    cannonProtection = objective.getScore("Cannon protection: " + ChatColor.GREEN + "on");
+                    cannonProtection = objective.getScore("Protection: " + ChatColor.GREEN + "on");
                 }
                 else {
-                    cannonProtection = objective.getScore("Cannon protection: " + ChatColor.RED + "off");
+                    cannonProtection = objective.getScore("Protection: " + ChatColor.RED + "off");
                 }
                 cannonProtection.setScore(2);
 

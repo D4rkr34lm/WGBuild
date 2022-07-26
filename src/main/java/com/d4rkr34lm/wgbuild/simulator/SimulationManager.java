@@ -3,6 +3,7 @@ package com.d4rkr34lm.wgbuild.simulator;
 import com.d4rkr34lm.wgbuild.WGBuild;
 import com.d4rkr34lm.wgbuild.plotSystem.Plot;
 import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
+import com.d4rkr34lm.wgbuild.trail.TrailManager;
 import com.sk89q.worldedit.util.formatting.text.Component;
 import com.sk89q.worldedit.util.formatting.text.TextComponent;
 import org.bukkit.Bukkit;
@@ -75,6 +76,7 @@ public class SimulationManager implements Listener {
         if(event.getAction().isRightClick() && event.getItem() != null && event.getAction().isRightClick() && event.getItem().getType() == Material.CLOCK){
             for(Plot plot : PlotManager.getPlots()){
                 if(plot.isInsideArea(event.getPlayer().getLocation())){
+                    TrailManager.issueRecording(plot, event.getPlayer());
                     startSimulation(gatherSimulators(plot));
                     event.setCancelled(true);
                 }

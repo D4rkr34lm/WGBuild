@@ -21,9 +21,8 @@ import java.util.Arrays;
 
 public class PasteCommands implements CommandExecutor {
     private WGBuild plugin;
-    private Clipboard[] clipboards = new Clipboard[9];
-
-    private String[] pasteCommands = {"ground", "tb1", "tb2", "tb3", "frm1", "frm2", "frm3", "tbm", "frmm"};
+    private Clipboard[] clipboards = new Clipboard[10];
+    private String[] pasteCommands = {"ground", "tb1", "tb2", "tb3", "tb3s", "tbm", "frm1", "frm2", "frm3", "frmm"};
 
     public PasteCommands(WGBuild plugin){
         this.plugin = plugin;
@@ -34,7 +33,7 @@ public class PasteCommands implements CommandExecutor {
             schematics.add(new File("./plugins/WGBuild/" + pasteCommand + ".schem"));
         }
 
-        for(int i = 0; i < 9; i++){
+        for(int i = 0; i < pasteCommands.length; i++){
             File file = schematics.get(i);
             ClipboardFormat format = ClipboardFormats.findByFile(file);
             ClipboardReader reader;
@@ -60,7 +59,13 @@ public class PasteCommands implements CommandExecutor {
 
             for(Plot plot : PlotManager.getPlots()){
                 if(plot.isInsideArea(player.getLocation())){
-                    plot.pasteClipboard(clipboards[Arrays.asList(pasteCommands).indexOf(command.getName())]);
+                    int index = Arrays.asList(pasteCommands).indexOf(command.getName());
+                    if(index > 5){
+                        plot.pasteClipboard(clipboards[index], true);
+                    }
+                    else {
+                        plot.pasteClipboard(clipboards[index], false);
+                    }
                 }
             }
         }
