@@ -1,43 +1,80 @@
 package com.d4rkr34lm.wgbuild.trail;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.FallingBlock;
+import org.bukkit.entity.TNTPrimed;
 import org.bukkit.util.Vector;
 
 public class TrailObject {
-
-    private Entity entity;
     private Location location;
-    private int tickTime;
-    private boolean explosion;
     private Vector velocity;
+    private boolean explosion;
+    private int tick;
+    private FallingBlock visualiser = null;
 
-    public TrailObject(Entity entity, int tickTime, boolean explosion){
-        this.entity = entity;
-        this.location = entity.getLocation();
-        this.tickTime = tickTime;
-        this.velocity = entity.getVelocity();
+    private boolean showing = false;
+
+    public TrailObject(Entity tnt, int tick, boolean explosion){
+        location = tnt.getLocation();
+        velocity = tnt.getVelocity();
+
         this.explosion = explosion;
+
+        this.tick = tick;
     }
 
-    public Entity getEntity(){
-        return entity;
+    public void show(){
+        if(!showing){
+            BlockData blockData;
+            if(explosion){
+                blockData = Bukkit.createBlockData(Material.RED_STAINED_GLASS);
+            }
+            else {
+                blockData = Bukkit.createBlockData(Material.TNT);
+            }
+
+            FallingBlock fallingBlock = Bukkit.getWorld("world").spawnFallingBlock(location, blockData);
+            fallingBlock.setGravity(false);
+            fallingBlock.setCustomName(Integer.toString(tick));
+            fallingBlock.setCustomNameVisible(true);
+            fallingBlock.shouldAutoExpire(false);
+            fallingBlock.setDropItem(false);
+
+            visualiser = fallingBlock;
+            showing = true;
+            TrailManager.registerTrailObject(this);
+        }
     }
 
-    public Location getLocation(){
-        return location;
+    public void hide(){
+        if(showing){
+            visualiser.remove();
+            showing = false;
+            TrailManager.checkoutTrailObject(this);
+        }
     }
 
-    public int getTickTime(){
-        return tickTime;
-    }
-
-    public boolean getExplosion(){
+    public boolean isExplosion() {
         return explosion;
     }
 
-    public Vector getVelocity(){
-        return velocity;
+    public FallingBlock getVisualiser(){
+        return visualiser;
     }
 
+    public int getTick() {
+        return tick;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public Vector getVelocity() {
+        return velocity;
+    }
 }

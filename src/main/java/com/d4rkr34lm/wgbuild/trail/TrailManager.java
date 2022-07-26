@@ -1,94 +1,159 @@
 package com.d4rkr34lm.wgbuild.trail;
 
 import com.d4rkr34lm.wgbuild.WGBuild;
-import org.antlr.v4.runtime.atn.PredictionMode;
+import com.d4rkr34lm.wgbuild.plotSystem.Plot;
+import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.block.data.BlockData;
-import org.bukkit.entity.FallingBlock;
+import org.bukkit.ChatColor;
+import org.bukkit.entity.*;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
-public class TrailManager {
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 
-    private static String bdTnt = "minecraft:tnt";
-    private static String bdGlass = "minecraft:red_stained_glass";
+public class TrailManager implements Listener {
 
-    private static final String MODE_NORMAL = "§aCurrent viewing mode: §6Normal";
-    private static final String MODE_EXPLOSION = "§aCurrent viewing mode: §6Explosion";
-    private static final String MODE_TRAVEL = "§aCurrent viewing mode: §6Travel";
-    private static final String MODE_HIDDEN = "§aCurrent viewing mode: §6Hidden";
+    private WGBuild plugin;
+    private static HashMap<Player, Trail> trails = new HashMap<>();
+    private static HashMap<Plot, Trail> trailsWaitingToRecord = new HashMap<Plot, Trail>();
+    private static HashMap<Plot, Trail> trailsRecording = new HashMap<Plot, Trail>();
+    private static  HashMap<Plot, Integer> recordingTickTime = new HashMap<>();
+    private static HashMap<FallingBlock, TrailObject> currentlyVisibleTrailObjects = new HashMap<>();
+    private static final String TRAIL_CHAT_TAG = "[" + ChatColor.BLUE  + "WGBuild" + ChatColor.DARK_PURPLE + "/" + ChatColor.BLUE + "Trail" + ChatColor.WHITE + "]";
+    private int newTaskID;
 
-    public TrailManager(){
-
+    public TrailManager(WGBuild plugin){
+        this.plugin = plugin;
+        Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
-    public static void showTrailNormal(){
-        removeTrail(false);
-
-        for(TrailObject t : WGBuild.getTrail()){
-
-            BlockData bd = Bukkit.createBlockData(bdTnt);
-
-            if(t.getExplosion()){
-                bd = Bukkit.createBlockData(bdGlass);
+    @EventHandler
+    public void onPrimedTntSpawn(EntitySpawnEvent event){
+        if(event.getEntity().getType() == EntityType.PRIMED_TNT){
+            for(Plot plot : PlotManager.getPlots()){
+                if(plot.isInsideArea(event.getEntity().getLocation())){
+                    if(trailsWaitingToRecord.containsKey(plot)){
+                        Trail trail = trailsWaitingToRecord.get(plot);
+                        trail.getPlayer().sendMessage("[" + ChatColor.BLUE  + "WGBuild" + ChatColor.DARK_PURPLE + "/" + ChatColor.BLUE + "Trail" + ChatColor.WHITE + "] Started recording tnt in plot " + ChatColor.BLUE + plot.getId());
+                        trailsRecording.put(plot, trail);
+                        trailsWaitingToRecord.remove(plot);
+                        recordTnt(trail, plot);
+                    }
+                    return;
+                }
             }
-
-            setTrailBlock(t.getLocation(), t.getTickTime(), bd, t);
-
         }
-        Bukkit.broadcastMessage(MODE_NORMAL);
     }
 
-    public static void showTrailExplosion(){
-        removeTrail(false);
-
-        for(TrailObject t : WGBuild.getTrail()){
-
-            if(!t.getExplosion()){
-                continue;
+    @EventHandler
+    public void onTntExplosion(EntityExplodeEvent event){
+        if(event.getEntity().getType() == EntityType.PRIMED_TNT){
+            for(Plot plot : PlotManager.getPlots()){
+                if(plot.isInsideArea(event.getEntity().getLocation()) && trailsRecording.containsKey(plot)){
+                    Trail trail = trailsRecording.get(plot);
+                    int tick = recordingTickTime.get(plot);
+                    TrailObject trailObject = new TrailObject(event.getEntity(), tick + 1, true);
+                    HashSet<TrailObject> trailObjects = new HashSet<>();
+                    trailObjects.add(trailObject);
+                    trail.addTrailObjects(trailObjects, tick);
+                }
             }
-
-            BlockData bd = Bukkit.createBlockData(bdGlass);
-            setTrailBlock(t.getLocation(), t.getTickTime(), bd, t);
         }
-        Bukkit.broadcastMessage(MODE_EXPLOSION);
     }
 
-    public static void showTrailTravel(){
-        removeTrail(false);
+    @EventHandler
+    public void onPlayerInteractWithTrailObject(PlayerInteractAtEntityEvent event){
+        if(event.getRightClicked().getType() == EntityType.FALLING_BLOCK){
+            FallingBlock fallingBlock = (FallingBlock) event.getRightClicked();
+            TrailObject trailObject = currentlyVisibleTrailObjects.get(fallingBlock);
+            String message = "";
+            message += TRAIL_CHAT_TAG + "Displaying data about TrailObject : \n";
+            message += "               " + "Tick Time: " + ChatColor.BLUE + trailObject.getTick() + ChatColor.WHITE + "\n";
+            message += "               " + "Velocity: \n";
+            message += "               " + "         X: " + ChatColor.BLUE + trailObject.getVelocity().getX() + ChatColor.WHITE + "\n";
+            message += "               " + "         Y: " + ChatColor.BLUE + trailObject.getVelocity().getY() + ChatColor.WHITE + "\n";
+            message += "               " + "         Z: " + ChatColor.BLUE + trailObject.getVelocity().getZ() + ChatColor.WHITE + "\n";
+            message += "               " + "Position: \n";
+            message += "               " + "         X: " + ChatColor.BLUE + trailObject.getLocation().getX() + ChatColor.WHITE + "\n";
+            message += "               " + "         Y: " + ChatColor.BLUE + trailObject.getLocation().getY() + ChatColor.WHITE + "\n";
+            message += "               " + "         Z: " + ChatColor.BLUE + trailObject.getLocation().getZ() + ChatColor.WHITE;
+            event.getPlayer().sendMessage(message);
+        }
+    }
 
-        for(TrailObject t : WGBuild.getTrail()) {
+    public void recordTnt(Trail trail, Plot plot){
+        newTaskID = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
 
-            if (t.getExplosion()) {
-                continue;
+            int taskID = 0;
+            int currentTick = -1;
+
+            @Override
+            public void run() {
+                if(taskID == 0){
+                    taskID = newTaskID;
+                }
+
+                currentTick++;
+                recordingTickTime.put(plot, currentTick + 1);
+                if(currentTick < 80){
+                    return;
+                }
+
+                boolean hasRecorded = false;
+
+                ArrayList<TNTPrimed> primedTnt = new ArrayList<>();
+                primedTnt.addAll(plugin.getServer().getWorld("world").getEntitiesByClass(TNTPrimed.class));
+
+                HashSet<TrailObject> trailObjects = new HashSet<>();
+                for(TNTPrimed tnt : primedTnt){
+                    if(plot.isInsideArea(tnt.getLocation())){
+                        trailObjects.add(new TrailObject(tnt, currentTick + 1, false));
+                        hasRecorded = true;
+                    }
+                }
+
+                if(!hasRecorded){
+                    Bukkit.getScheduler().cancelTask(taskID);
+                    trailsRecording.remove(plot);
+                    trail.show(TrailViewingMode.normal);
+                    trail.getPlayer().sendMessage("[" + ChatColor.BLUE  + "WGBuild" + ChatColor.DARK_PURPLE + "/" + ChatColor.BLUE + "Trail" + ChatColor.WHITE + "] Finished recording");
+                }
+                else {
+                    trail.addTrailObjects(trailObjects, currentTick);
+                }
             }
-
-            BlockData bd = Bukkit.createBlockData(bdTnt);
-            setTrailBlock(t.getLocation(), t.getTickTime(), bd, t);
-        }
-        Bukkit.broadcastMessage(MODE_TRAVEL);
+        },0, 1);
     }
 
-    public static void removeTrail(boolean chatOutput){
-        for(FallingBlock b : Bukkit.getWorld("world").getEntitiesByClass(FallingBlock.class)){
-            b.remove();
+    public static boolean isRecording(Plot plot){
+        if(trailsRecording.containsKey(plot) || trailsWaitingToRecord.containsKey(plot)){
+            return true;
         }
-        WGBuild.clearLookupTable();
-        if(chatOutput){
-            Bukkit.broadcastMessage(MODE_HIDDEN);
+        else {
+            return  false;
         }
     }
 
-    private static void setTrailBlock(Location loc, int tickTime, BlockData bd, TrailObject t){
-
-        FallingBlock fb = Bukkit.getWorld("world").spawnFallingBlock(loc, bd);
-
-        WGBuild.putEntry(fb, t);
-
-        fb.setGravity(false);
-        fb.setCustomName(Integer.toString(tickTime));
-        fb.setCustomNameVisible(true);
-        fb.shouldAutoExpire(false);
-        fb.setDropItem(false);
+    public static HashMap<Player, Trail> getTrails() {
+        return trails;
     }
 
+    public static HashMap<Plot, Trail> getTrailsWaitingToRecord() {
+        return trailsWaitingToRecord;
+    }
+
+    public static void registerTrailObject(TrailObject trailObject){
+        currentlyVisibleTrailObjects.put(trailObject.getVisualiser(), trailObject);
+    }
+
+    public static void checkoutTrailObject(TrailObject trailObject){
+        currentlyVisibleTrailObjects.remove(trailObject.getVisualiser());
+    }
 }
