@@ -46,6 +46,7 @@ public class TrailObject {
 
             visualiser = fallingBlock;
             showing = true;
+            TrailManager.registerTrailObject(this);
         }
     }
 
@@ -53,10 +54,27 @@ public class TrailObject {
         if(showing){
             visualiser.remove();
             showing = false;
+            TrailManager.checkoutTrailObject(this);
         }
     }
 
     public boolean isExplosion() {
         return explosion;
+    }
+
+    public FallingBlock getVisualiser(){
+        return visualiser;
+    }
+
+    public int getTick() {
+        return tick;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public Vector getVelocity() {
+        return velocity;
     }
 }

@@ -5,14 +5,12 @@ import com.d4rkr34lm.wgbuild.plotSystem.Plot;
 import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.TNTPrimed;
+import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.lang.reflect.Array;
@@ -27,6 +25,8 @@ public class TrailManager implements Listener {
     private static HashMap<Plot, Trail> trailsWaitingToRecord = new HashMap<Plot, Trail>();
     private static HashMap<Plot, Trail> trailsRecording = new HashMap<Plot, Trail>();
     private static  HashMap<Plot, Integer> recordingTickTime = new HashMap<>();
+    private static HashMap<FallingBlock, TrailObject> currentlyVisibleTrailObjects = new HashMap<>();
+    private static final String TRAIL_CHAT_TAG = "[" + ChatColor.BLUE  + "WGBuild" + ChatColor.DARK_PURPLE + "/" + ChatColor.BLUE + "Trail" + ChatColor.WHITE + "]";
     private int newTaskID;
 
     public TrailManager(WGBuild plugin){
@@ -65,6 +65,26 @@ public class TrailManager implements Listener {
                     trail.addTrailObjects(trailObjects, tick);
                 }
             }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerInteractWithTrailObject(PlayerInteractAtEntityEvent event){
+        if(event.getRightClicked().getType() == EntityType.FALLING_BLOCK){
+            FallingBlock fallingBlock = (FallingBlock) event.getRightClicked();
+            TrailObject trailObject = currentlyVisibleTrailObjects.get(fallingBlock);
+            String message = "";
+            message += TRAIL_CHAT_TAG + "Displaying data about TrailObject : \n";
+            message += "               " + "Tick Time: " + ChatColor.BLUE + trailObject.getTick() + ChatColor.WHITE + "\n";
+            message += "               " + "Velocity: \n";
+            message += "               " + "         X: " + ChatColor.BLUE + trailObject.getVelocity().getX() + ChatColor.WHITE + "\n";
+            message += "               " + "         Y: " + ChatColor.BLUE + trailObject.getVelocity().getY() + ChatColor.WHITE + "\n";
+            message += "               " + "         Z: " + ChatColor.BLUE + trailObject.getVelocity().getZ() + ChatColor.WHITE + "\n";
+            message += "               " + "Position: \n";
+            message += "               " + "         X: " + ChatColor.BLUE + trailObject.getLocation().getX() + ChatColor.WHITE + "\n";
+            message += "               " + "         Y: " + ChatColor.BLUE + trailObject.getLocation().getY() + ChatColor.WHITE + "\n";
+            message += "               " + "         Z: " + ChatColor.BLUE + trailObject.getLocation().getZ() + ChatColor.WHITE;
+            event.getPlayer().sendMessage(message);
         }
     }
 
@@ -127,5 +147,13 @@ public class TrailManager implements Listener {
 
     public static HashMap<Plot, Trail> getTrailsWaitingToRecord() {
         return trailsWaitingToRecord;
+    }
+
+    public static void registerTrailObject(TrailObject trailObject){
+        currentlyVisibleTrailObjects.put(trailObject.getVisualiser(), trailObject);
+    }
+
+    public static void checkoutTrailObject(TrailObject trailObject){
+        currentlyVisibleTrailObjects.remove(trailObject.getVisualiser());
     }
 }
