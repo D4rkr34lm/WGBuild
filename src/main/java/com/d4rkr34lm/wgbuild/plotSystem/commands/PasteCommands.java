@@ -61,10 +61,10 @@ public class PasteCommands implements CommandExecutor {
                 if(plot.isInsideArea(player.getLocation())){
                     int index = Arrays.asList(pasteCommands).indexOf(command.getName());
                     if(index > 5){
-                        plot.pasteClipboard(clipboards[index], true);
+                        plot.pasteClipboard(clipboards[index], false);
                     }
                     else {
-                        plot.pasteClipboard(clipboards[index], false);
+                        plot.pasteClipboard(clipboards[index], true);
                     }
                 }
             }
