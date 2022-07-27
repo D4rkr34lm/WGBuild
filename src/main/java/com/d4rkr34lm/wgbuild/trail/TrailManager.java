@@ -26,7 +26,7 @@ public class TrailManager implements Listener {
     private static HashMap<Plot, Trail> trailsRecording = new HashMap<Plot, Trail>();
     private static  HashMap<Plot, Integer> recordingTickTime = new HashMap<>();
     private static HashMap<FallingBlock, TrailObject> currentlyVisibleTrailObjects = new HashMap<>();
-    private static final String TRAIL_CHAT_TAG = "[" + ChatColor.BLUE  + "WGBuild" + ChatColor.DARK_PURPLE + "/" + ChatColor.BLUE + "Trail" + ChatColor.WHITE + "]";
+    private static final String TRAIL_CHAT_TAG = "[" + ChatColor.BLUE  + "WGBuild" + ChatColor.WHITE + "]";
     private int newTaskID;
 
     public TrailManager(WGBuild plugin){
@@ -85,6 +85,14 @@ public class TrailManager implements Listener {
             message += "               " + "         Y: " + ChatColor.BLUE + (trailObject.getLocation().getY() - 0.5) + ChatColor.WHITE + "\n";
             message += "               " + "         Z: " + ChatColor.BLUE + (trailObject.getLocation().getZ() - 0.5) + ChatColor.WHITE;
             event.getPlayer().sendMessage(message);
+        }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event){
+        if(trails.containsKey(event.getPlayer())){
+            trails.get(event.getPlayer()).hide();
+            trails.remove(event.getPlayer());
         }
     }
 
