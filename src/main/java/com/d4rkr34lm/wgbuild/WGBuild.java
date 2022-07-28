@@ -8,6 +8,7 @@ import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import com.d4rkr34lm.wgbuild.plotSystem.commands.*;
 import com.d4rkr34lm.wgbuild.simulator.SimulationManager;
 import com.d4rkr34lm.wgbuild.simulator.SimulatorGuiManager;
+import com.d4rkr34lm.wgbuild.tools.CannonReloader;
 import com.d4rkr34lm.wgbuild.trail.*;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.FallingBlock;
@@ -42,6 +43,8 @@ public class WGBuild extends JavaPlugin {
 
 		new TrailCommand(this);
 		new TrailManager(this);
+
+		new CannonReloader(this);
 	}
 
 	@Override
