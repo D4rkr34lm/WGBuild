@@ -110,7 +110,7 @@ public class TrailManager implements Listener {
 
                 currentTick++;
                 recordingTickTime.put(plot, currentTick + 1);
-                if(currentTick < 80){
+                if(currentTick < 79){
                     return;
                 }
 

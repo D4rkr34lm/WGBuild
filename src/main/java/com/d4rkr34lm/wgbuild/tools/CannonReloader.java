@@ -1,6 +1,8 @@
 package com.d4rkr34lm.wgbuild.tools;
 
 import com.d4rkr34lm.wgbuild.WGBuild;
+import com.d4rkr34lm.wgbuild.plotSystem.Plot;
+import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -78,8 +80,12 @@ public class CannonReloader implements Listener {
 
     @EventHandler
     public void onBlockPlace(BlockPlaceEvent event){
-        if(event.getBlock().getType() == Material.TNT && playersRecording.contains(event.getPlayer())){
-            reloaderClipboards.get(event.getPlayer()).add(event.getBlock());
+        for(Plot plot : PlotManager.getPlots()){
+            if(plot.isInsideArea(event.getBlock().getLocation())){
+                if(event.getBlock().getType() == Material.TNT && playersRecording.contains(event.getPlayer())){
+                    reloaderClipboards.get(event.getPlayer()).add(event.getBlock());
+                }
+            }
         }
     }
 
