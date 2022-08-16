@@ -5,6 +5,7 @@ import com.d4rkr34lm.wgbuild.plotSystem.Plot;
 import com.d4rkr34lm.wgbuild.plotSystem.PlotManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.entity.*;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -119,10 +120,13 @@ public class TrailManager implements Listener {
                 ArrayList<TNTPrimed> primedTnt = new ArrayList<>();
                 primedTnt.addAll(plugin.getServer().getWorld("world").getEntitiesByClass(TNTPrimed.class));
 
+                ArrayList<Location> registeredLocations = new ArrayList<>();
+
                 HashSet<TrailObject> trailObjects = new HashSet<>();
                 for(TNTPrimed tnt : primedTnt){
-                    if(plot.isInsideArea(tnt.getLocation())){
+                    if(plot.isInsideArea(tnt.getLocation()) && !registeredLocations.contains(tnt.getLocation())){
                         trailObjects.add(new TrailObject(tnt, currentTick + 1, false));
+                        registeredLocations.add(tnt.getLocation());
                         hasRecorded = true;
                     }
                 }
