@@ -32,7 +32,11 @@ public class PlotManager {
             err.printStackTrace();
         }
 
+        File wgBuildFolder = new File("./plugins/WGBuild");
+        if(!wgBuildFolder.exists()) wgBuildFolder.mkdir();
         File plotsFile = new File("./plugins/WGBuild/plots.dat");
+        if(!plotsFile.exists()) try{plotsFile.createNewFile();}catch (IOException e){e.printStackTrace();}
+
         try{
             FileReader fileReader = new FileReader(plotsFile);
             BufferedReader bufferedReader = new BufferedReader(fileReader);
